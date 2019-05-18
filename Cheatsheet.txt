@@ -1,0 +1,31 @@
+Read
+val peopleDF = spark.read.format("json").load("examples/src/main/resources/people.json")
+
+Write & Mode
+peopleDF.select("name", "age").write.format("parquet").mode(SaveMode.Overwrite).save("namesAndAges.parquet")
+
+Load
+val peopleDFCsv = spark.read.format("csv")
+  .option("sep", ";")
+  .option("inferSchema", "true")
+  .option("header", "true")
+  .load("examples/src/main/resources/people.csv")
+
+Input File
+val random =sc.textFile("/user/input.txt")
+
+Uppercase
+val upperlines = random.map(each=>each.toUpperCase)
+
+Map
+val arrayofwords = upperlines.map(line=>line.split(" "))
+val pairs = arrayofwords.map(eachword=>(eachword,1))
+
+FlatMap
+val arrayofwords = upperlines.flatMap(line=>line.split(" "))
+
+ReduceByKey
+val sums = pairs.reduceByKey((first,second)=> first+second)
+
+Convert Spark DF to Panda DF
+pandasDf = sparkDf.toPandas()

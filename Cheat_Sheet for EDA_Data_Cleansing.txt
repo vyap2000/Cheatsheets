@@ -1,0 +1,34 @@
+
+def summary_statistics(column, data):
+    X = data[column]
+    print('COLUMN: {}'.format(column))
+    print('mean: {}'.format(np.mean(X)))
+    print('median: {}'.format(np.median(X)))
+    print('mode: {}'.format(stats.mode([round(d) for d in X])))
+    print('variance: {}'.format(np.var(X)))
+    print('standard deviation: {}'.format(np.std(X)))
+
+def distribution_plotter(column, data_set):
+    data = data_set[column]
+    sns.set(rc={"figure.figsize": (10, 7)})
+    sns.set(color_codes=True)
+    sns.set(style="white", palette="muted")
+    dist = sns.distplot(data, hist_kws={'alpha':0.2}, kde_kws={'linewidth':5})
+    dist.set_title('Distribution of ' + column + '\n', fontsize=16)
+
+def dist_plotter(sample):
+    fig, ax = plt.subplots(figsize=(8,6))
+    sns.distplot(sample, bins=50, kde=False)
+    plt.show()
+
+# Write a function that will take a random sample of size  n=30  from this salary list 1000 times, 
+# calculate the means of the samples, and return the sample means as a new list.
+def sampler(population, n=30, k=1000):
+    sample_means = []
+    for i in range(k):
+        sample = np.random.choice(population, size=30, replace=True)
+        sample_means.append(np.mean(sample))
+    return sample_means
+
+summary_statistics('2016_q1_sales', sales_data)
+distribution_plotter('volume_sold', data)

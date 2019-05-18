@@ -1,0 +1,626 @@
+import warnings
+warnings.filterwarnings('ignore')
+
+pd.set_option('display.max_rows', 200000)
+pd.set_option('display.max_columns', 50000)
+pd.set_option('display.width', 10000)
+
+# Set max printout options for Pandas.
+pd.options.display.max_columns = 50
+pd.options.display.max_colwidth = 300
+
+import pandas as pd
+remote_path ='https://git.generalassemb.ly/dsi-unit-2/pandas-data_munging_full_overview-lesson/tree/master/datasets/users_original.txt'
+
+READING IN FILES:
+df = pd.read_csv(rockfile)
+df = pd.read_table('./datasets/users.txt')
+users = pd.read_table('./datasets/users.txt',sep='|',index_col='user_id')
+drinks = pd.read_csv(local_drinks_csv, header=0, names=new_columns, na_filter=False)	# Turn off the missing value filter.    	
+users = pd.read_table(remote_path,sep='|',header=None, names=new_columns, index_col='user_id')
+
+LIMITING ROWS while reading files:
+# Limit which rows are included when reading in a file.
+d = pd.read_csv('./datasets/drinks.csv', nrows=10)           # Only read the first 10 rows.
+d = pd.read_csv('./datasets/drinks.csv', skiprows=[1, 2])    # Skip the first two rows of data.
+
+df.shape 
+df.columns    			return all columns names
+df.info()     			return function to display all data types with more detail
+df.dtypes			return quick data attribute summary
+df.get_dtype_counts()        	function to determine how many columns there are of each type.
+
+
+DESCRIBE
+df.describe()			return all statistic data, i.e. mean, count, std, min, max, 25%, 50% (median), 75% percentiles 
+df['column2'].describe()		describe a series
+df['column2','column3'].describe()    	describe the 2 columned dataframe
+df.apply(float_or_nan).describe()	apply float custom method first before returning stat data with describe
+df.describe(include=['object']) return statistic for strings without calculated fields like mean, etc
+
+# return statistics for ALL columns "regardless" of datatypes.
+df.describe(include='all')	return all statistic regardless of data types, return Nan for means, std, etc
+
+
+COLUMNS
+df.column 			return a series / column values
+df.colname
+df['colname']			return a series
+df['column2']			return a series / column values
+df[['col2','col5']]		# return a dataframe when using 2 square brackets
+
+
+ROWS
+df.index = new_index_values    			# changing row index names pr labelling
+df.index = df['column1']       			# assign column1 as the row index
+
+
+NDARRAY - to get a list of arrays use the following syntax:
+boston.pct_underclass.values
+df.values - an ndarray type is returned by using .values
+
+
+ROWS & COLUMNS Selection using LOC
+.loc indexes with the labels for rows and columns.
+	df.loc[['row1','row2',...],['col2','col5',..]]    # is for subset selection
+	df.loc[row_mask, ['col_1', 'col_2', 'col_3']] = new_value
+E.g.1.
+  df.loc[0:,('City','State')]   # List both city and state columns with all rows 0:
+E.g.2
+  df.loc[:,'City':'State']	# List all columns from City to State using colon : along with all rows 0:
+E.g.3
+  ufo.loc[0, :]                 # Row 0, all columns
+E.g.4
+  ufo.loc[0:2, :]               # Rows 0/1/2, all columns
+E.g.5
+  ufo.loc[0:2, 'City':'State']  # Rows 0/1/2, range of columns
+E.g.6
+  df.loc[df[df['releaseyear'].isnull()].index, 'releaseyear'] = np.nan
+
+mydata.loc[1, 'Column1'] = 0    # Row 1 with Column1 only
+mydata.loc[:, 'Column1'] = 0	# All rows with Column1
+
+
+ROWS & COLUMNS Selection using ILOC
+.iloc indexes with the integer positions for rows and columns.
+E.g 1:
+  df.iloc[[0,1,2,..],[3:]]     	 # selection using both row numbers and column numbers  
+E.g.2:				  		
+  ufo.iloc[:, [0, 3]] 		 # All rows, columns in position 0/3  
+E.g.3:
+  ufo.iloc[:, 0:4]               # All rows, columns in position 0/1/2/3
+E.g.4:
+  ufo.iloc[0:3, :] 		 # rows in position 0/1/2, all columns
+E.g.5:
+  subset = df.loc[['row1','row2'],['col2','col5']]   
+
+
+SETTING INDEX 
+- Setting and removing the Hierarchical Index
+  ufo.set_index('Time', inplace=True)        # ***** set index to datetime field *****
+
+
+RESETTING INDEX
+  ufo.reset_index(inplace=True)		     # reset index  
+  df.reset_index(drop=True, inplace=True)   # reset index by dropping existing grouping and replacing it with all combination set numbering from 0.
+E.g.  df3.groupby('country').sum().sort_values('profit').reset_index()[5:10]			
+
+
+NEW COLUMN    	      	# by + signs
+  drinks['servings'] = drinks['beer'] + drinks['spirit'] + drinks['wine']
+  df['location'] = df['City'] + ', ' + df['State']                     # with a comma and space
+
+ADDING NEW COLUMN      	# using .assign() function
+# Temporarily define a new column as a function of the existing columns.
+   drinks.assign(servings = drinks['beer'] + drinks['spirit'] + drinks['wine']).head(2)
+
+
+RENAMING COLUMNS 
+Method 1:
+There two popular methods for renaming DataFrame columns:
+1. Using a _dictionary substitution_, which is useful if you only want to rename a few of the columns. This method uses the `.rename()` function.
+
+df.rename(columns=
+        {
+        'CRIM':'rate_of_crime',
+        'ZN':'residential_zone_pct',
+        'INDUS':'business_zone_pct',
+        'RM':'average_rooms',
+        'AGE':'owner_occup_pct',
+        'DIS':'dist_to_work',
+        'RAD':'access_to_highway',
+        'TAX':'property_tax',
+        'B':'black_stat'
+         })
+
+Method 2:
+2. Using a _list replacement_, which is quicker than writing out a dictionary but requires a full list of names.
+
+new_names = ['crime_rate','pct_res_zone','pct_buss_zone','boarders_river',
+            'conc_oxide','avg_rooms','pct_build_age','dist_to_work','highway_access',
+            'property_tax','student_teacher_ratio','black_stat','pct_underclass',
+            'med_home_value']
+df.columns = new_names
+
+More Examples for rename:
+df.columns = ['A','B','C']      rename columns names
+mydata.rename(columns={'Old_Name':'New_Name'},inplace=True)	 #   assignment vs renaming 			   
+E.g. 
+df.rename(columns={'index':'column',0:'type'})
+df.rename(columns={df.columns[1]:'int'},inplace=True) 
+df.rename(columns=lambda col:col+'_A')    renaming via function in lambda
+
+
+REPLACE CHAR in file header / heading title:
+import string
+uppercase = string.ascii_uppercase
+lowercase = string.ascii_lowercase
+
+Method 1: 
+#  Outer loop: for each individual word in title columns do a join with null string '' to remove the space between words. 
+#  Inner Loop: for each character in words check if char is found in either one of uppercase and lowercase (alphabet) lists. 
+#     if each character is found in these lists, then convert to lowercase. 
+#     otherwise move on to next character in the same word
+
+    df.columns = [''.join([char.lower() for char in words if char in uppercase+lowercase]) for words in df.columns]
+
+Method 2:
+# for each words in columns, call lambda function. 
+# While in lambda, join null string "" for each characters of a title word if it's in either of these (alphabet) lists.
+
+    df=df.rename(columns= lambda words: ''.join([char.lower() for char in words if char in uppercase+lowercase]))
+
+Other example
+mydata.loc[0, ['B','C']] = [-1000, 'newstring']
+
+
+REPLACE FUNCTION
+# Replace all instances of a value in a column (must match the entire value).
+ufo['State'].replace('Fl', 'FL', inplace=True)
+
+E.g.
+OBD['sales'] = OBD['sales'].map(lambda x: x.strip('$'))
+OBD['sales'] = OBD['sales'].map(lambda x: float(x.replace(',','')))
+
+
+FILTERING 
+E.g. 1
+drug [drug['marijuana-use'] > 20]       			condition filter at the right end
+drug [ (drug['marijuana-use'] > 20) & (drug.n > 4000) ]    	"and' condition
+drug [ (drug['marijuana-use'] > 20) | (drug.n > 4000) ]	   	"or' condition
+
+E.g. 2
+young = users['age'] < 20
+male = users['gender'] == 'M'
+users[(young) & (male)]
+
+
+ISIN Function							# check if it is in the list
+users[users['occupation'].isin(['doctor','lawyer'])]
+
+
+APPLY 
+- function to apply for all cells in the dataframe
+df.apply(lambda x: x+1)			
+df.apply(myfunction)			# just name of the function with no bracket.
+
+
+MAP
+df.map(myfunction)			# map works the same as apply
+	# Map existing values to a different set of values.
+  	E.g.       			# add a new columns "is_male
+	   users['is_male']=users['gender'].map({'M':1,'F':0})
+					# replace 1 and 0 with M and F
+
+
+TRANSPOSE DataFrame
+Print column name from (Top to Bottom) instead of left to right by for-loop.
+
+	for column_name in df:
+            print(column_name)
+
+Print dataframe vertically (Top to Bottom) instead of left to right 
+
+	for i in df.index.values[:3]:
+            print(df.loc[i])
+
+
+INSERT DATA ROWS
+# always inserting new rows at the first position - last row will be always on top    
+df.insert(0, {'name': 'dean', 'age': 45, 'sex': 'male'})
+
+df.loc[-1] = ['45', 'Dean', 'male']  # adding a row
+df.index = df.index + 1  # shifting index
+
+
+SORT BY VALUES
+users['age'].sort_values()				# sort by 1 series
+df.sort_values()					
+users.sort_values('age',ascending=False)         	# sort by 1 column 
+drinks.sort_values('alcohol',ascending=False)	        # from big to small
+users.sort_values(['occupation','age'])		      ** sort by 2 or more columns with square brackets
+
+Example for sort by values with groupby:
+df3.groupby('country').sum().sort_values('profit').reset_index()[5:10]
+
+
+SORTING BY INDEX					# Sort a column by its index.
+df.sort_index(inplace=True) 
+df['State'].value_counts().sort_index()[0:8]
+
+
+Other interesting functions
+df.mean()	 		return mean or percentage %
+df.size()    
+df.unique()			Return unique values of Series object.
+df.nunique()	dropna=True	return number of unique elements in the object. (exclude NA)
+df.drop_duplicates
+df.value_counts()             Counting Occurrances of Unique Values 
+df.isnull()
+df.notnull()
+df.dropna()
+
+df.fillna(0)			Fill in the missing values of column using string NA.
+   E.g.1
+	drinks['continent'].fillna('NA',inplace=True)
+   E.g.2 
+	df['releaseyear'] = df['releaseyear'].fillna(0)
+
+
+ASTYPE Function
+df.astype			# force datatype using .astype     
+   	df['colume1'].astype(float)
+	drinks['beer'] = drinks['beer'].astype('float')
+	df['State'] = df['State'].astype('category')             # category uses less memory than objects
+
+df[['col2','col5']].head()
+df.col2.head()
+
+
+pd.Series([True, False, True])  # Creates a Boolean Series
+pd.Series([True, False, True]).sum()  # Converts `False` to 0 and `True` to 1
+
+
+CONVERT FLOAT
+E.g.1 
+   pd.to_numeric(drug[col],errors='coerce')    # fill Nan if error encounters
+
+E.g.2
+  def element_converter(element):
+      try:
+          return float(element)
+      except:
+          return np.nan
+
+def float_or_nan(column):
+    return column.map(element_converter)
+
+
+FACTORISE() - ENCODED STRINGS AN INTEGERS 
+# Encode strings as integer values. (This function automatically starts at 0).
+	E.g.       			# add a new columns ['occupation_num'] 
+	users['occupation_num'] = users['occupation'].factorize()[0]	
+					# convert each occupation in the list to integer numbers.
+
+
+STRING - Methods With SERIES only - using .str
+   df['State'].str.upper() 
+
+
+DATETIME CONVERSION		# Convert a string to the datetime format.
+ufo['Time'] = pd.to_datetime(ufo['Time'])
+ufo['Time'].dt.hour		# Datetime format exposes convenient attributes.
+                        
+(ufo['Time'].max() - ufo['Time'].min()).days  # It also allows you to do datetime "math."
+ufo[ufo['Time'] > pd.datetime(2014, 1, 1)].head(2) # Boolean filtering with the datetime format
+
+
+COLUMN DATATYPE CHANGE
+  E.g.1
+	# Change the data type of a column when reading in a file.
+	d = pd.read_csv('../datasets/drinks.csv', dtype={'beer_servings':float})
+  E.g.2
+	# Change the data type of a column.
+	drinks['beer'] = drinks['beer'].astype('float')
+
+
+DUMMY-CODED COLUMNS 
+# Create dummy variables for `continent` and exclude the first dummy row.
+continent_dummies = pd.get_dummies(drinks['continent'], prefix='cont').iloc[1:, :]
+
+
+CONCATENATING 2 DATAFRAMES
+# Concatenate two DataFrames (axis=0 for rows, axis=1 for columns).
+drinks = pd.concat([drinks, continent_dummies], axis=1)
+pd.concat([df1, df2.reset_index(drop=True)], axis=1)['A']
+
+
+MERGE FUNCTION in Pandas
+pd.merge(df_a, df_b, on='subject_id', how='inner')
+pd.merge(df_rides, 
+         df_drivers, 
+         left_on='driver_first_name', 
+         right_on='name',
+         how='outer')
+
+# combine the information in df_a, df_b, and df_n using outer JOINs 
+# (no information should be lost).
+df_1 = pd.merge(df_a, df_b, on='subject_id', how='outer')
+df_2 = pd.merge(df_1, df_n, on='subject_id', how='outer')
+
+# Edo's solution 
+# - use concat first, then merge
+pd.merge(pd.concat([df_a, df_b]), 
+         df_n, 
+         on='subject_id', 
+         how='inner')     
+
+
+CONCATENATING 2 Vector Matrix using NUMPY
+# Using np.newaxis
+vec1_2d = vector1[np.newaxis, :]
+vec2_2d = vector2[np.newaxis, :]
+print("Vertical Stack")
+print(np.concatenate([vec1_2d, vec2_2d], axis=0))
+print("Horizontal Stack")
+print(np.concatenate([vec1_2d, vec2_2d], axis=1))
+
+
+# Alternatively, can also use np.reshape
+a = np.arange(6).reshape((3, 2))
+https://docs.scipy.org/doc/numpy/reference/generated/numpy.reshape.html 
+
+
+CORRELATION Matrix in dataframe
+boston.corr()
+plt.figure(figsize=(20,20))
+sns.heatmap(boston.corr(), annot=True)
+plt.matshow(dataframe.corr())
+
+		
+ASSIGNMENT 
+E.g.1		# Create DF from a DICT
+  subset = pd.DataFrame({'capital':['Montgomery', 'Juneau', 'Phoenix'], 'state':['AL', 'AK', 'AZ']})	
+E.g.2  
+  subset = pd.DataFrame({'Letters':['A','B','C'],'Integers':[1,2,3],'Floats':[2.2, 3.3, 4.4]})
+E.g.3		# Create DF from list of lists
+  d = pd.DataFrame([['Montgomery', 'AL'], ['Juneau', 'AK'], ['Phoenix', 'AZ']], columns=['capital', 'state'])
+
+
+DUPLICATE ROWS detection
+# Detecting duplicate rows:
+  d = users.duplicated()          # True if a row is identical to a previous row.
+  d = users.duplicated().sum()    # Count of duplicates.
+  d = users[users.duplicated()]   # Only shows duplicates.
+  d = users.age.duplicated()      # Checks a single column for duplicates.
+  d = users.duplicated(['age', 'gender', 'zip_code']).sum()   # Specifies columns for finding duplicates.
+
+
+DROPPING DUPLICATE ROWS
+ d = users.drop_duplicates()     # Drops duplicate rows.
+
+
+DROP COLUMNS
+df.drop(columns=['66th_week'],inplace=True)          # drop 1 column with inplace = True
+drinks.drop(columns=['ml','beer'],axis=1)            # drop 2 columns with axis = 1 (columns)   
+drinks.drop(['ml','servings'],axis=1,inplace=True)
+
+
+WRITE TO CSV - write a dataframe out to a .csv file
+  drinks.to_csv('drinks_updated.csv')  # Index is used as the first column
+  drinks.to_csv('drinks_updated.csv', index=False) # Ignore index
+
+
+SAVE DATAFRAME - To Disk - Using Pickle 
+
+E.g.1
+# Save a DataFrame to disk (a.k.a., "pickle") and # Read it from disk (a.k.a., "unpickle").
+  drinks.to_pickle('drinks_pickle')
+  pd.read_pickle('drinks_pickle')
+
+E.g.2
+# ******* pickle out ********
+file_Name = "testfile"
+# open the file for writing
+fileObject = open(file_Name,'wb')
+
+# this writes the object a to the
+# file named 'testfile'
+pickle.dump(PREDICTOR,fileObject)
+
+# here we close the fileObject
+fileObject.close()
+
+
+# ******* pickle in ********
+
+# we open the file for reading
+fileObject = open(file_Name,'r')
+
+# load the object from the file into var b
+PREDICTOR = pickle.load(fileObject)  
+
+
+
+
+RANDOMLY SAMPLING A DATAFRAME
+# Randomly sample a DataFrame.
+  train = drinks.sample(frac=0.75, random_state=1)    # Will contain 75% of the rows
+  test = drinks[~drinks.index.isin(train.index)]      # Will contain the other 25%
+
+
+CROSSTAB - Performing Cross-Tabulations       # Display a cross-tabulation of two Series.
+  pd.crosstab(users['occupation'], users['gender'])
+
+
+QUERY function - Filtering Syntax
+# Alternative syntax for Boolean filtering (noted as "experimental" in the documentation):
+  d = users.query('age < 20')                 # users[users.age < 20]
+  d = users.query("age < 20 and gender=='M'") # users[(users.age < 20) & (users.gender=='M')]
+  d = users.query('age < 20 or age > 60')     # users[(users.age < 20) | (users.age > 60)]
+
+
+GROUPBY 
+df.groupby('column')  			# single column group return a series
+df.groupby(['column1','column2'])	# multiple columns grouping returning a dataframe *Note [,,] inside the bracket.
+
+# For loop for iterating the outcome of a groupby
+for g in grouped:
+    print('Pclass group:', g[0])
+    print('titanic subset head:', g[1].head())
+    print('------------------------------------------','\n')
+
+GROUPBY with use of built in or custom functions  
+Eg  
+df.groupby('Embarked')['Survived'].mean()      
+df.groupby('Embarked').mean()['Survived']
+df.groupby(['Embarked','Pclass'])[['Fare','Age']].mean().reset_index()
+df.groupby(['Embarked','Pclass'])[['Fare','Age']].apply(np.mean).reset_index()
+
+GROUPBY & PLOT
+df.groupby(['Pclass','Sex'])['Fare'].mean().unstack().plot(kind="bar",stacked=True)
+
+
+GROUPBY - Custom Function  - with dataframe input and output with dataframe.
+	def top5female (df_input):
+    		subset=df_input.sort_values('Fare',ascending=False)
+    		subset=subset[subset['Sex']=='female']
+    		return(subset.head(5)) 
+
+DATE / TIME CONVERSION:
+import datetime
+	df['entered_month']=pd.to_datetime(df['date_entered']).dt.month
+
+Week Number:
+    movies['weekenddate'] = pd.to_datetime(movies['WEEKEND_DATE'])
+movies    ['YR_WK_NUM']=([i.isocalendar()[1] for i in movies['weekenddate']])
+
+
+DATA INVESTIGATION:
+1.  Investigate
+print(drug.shape,'\n')
+print(drug.columns,'\n')
+print(drug.info(),'\n')
+print(drug.head(),'\n')
+print(drug.dtypes,'\n')
+print(drug.get_dtype_counts(),'\n')
+print(drug.describe(),'\n')
+
+2.  Finding Missing Values
+  drinks['continent'].value_counts(dropna=False)        # only use value_counts on a series
+
+3.  NULL Counting - Fill with values like - or null / Nan or default values.
+  df.isnull().sum()    
+
+4.  Drop Null or Irrelevant Rows or Columns (useless data)
+    d = drinks.dropna()			# drop rows when ANY column value is NaN
+    d = drinks.dropna(how='all')	# drop rows when ALL and every columns values in NaN
+
+5.  Find causes of odd data which resulted in strange/str/objects data type by python. 
+def value in df[col1].unique:
+    try:
+        float(element)
+    except:
+        print (element)	  
+
+
+
+
+****************** FLASK (Web API) ************** 
+
+import numpy as np
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+import pickle
+import flask
+app = flask.Flask(__name__)
+
+@app.route("/")
+def hello():
+    return "Hello World!"
+
+@app.route("/greet/<name>")
+def greet(name):
+    '''Say hello to your first parameter'''
+    return "Hello, {}!".format(name)
+
+#-------- MODEL GOES HERE -----------#
+df = pd.read_csv('./datasets/titanic.csv')
+include = ['Pclass', 'Sex', 'Age', 'Fare', 'SibSp', 'Survived']
+
+# Create dummies and drop NaNs
+df['Sex'] = df['Sex'].apply(lambda x: 0 if x == 'male' else 1)
+df = df[include].dropna()
+
+X = df[['Pclass', 'Sex', 'Age', 'Fare', 'SibSp']]
+y = df['Survived']
+
+PREDICTOR = RandomForestClassifier(n_estimators=100).fit(X, y)
+
+
+# ******* pickle out ********
+file_Name = "testfile"
+# open the file for writing
+fileObject = open(file_Name,'wb')
+
+# this writes the object a to the
+# file named 'testfile'
+pickle.dump(PREDICTOR,fileObject)
+
+# here we close the fileObject
+fileObject.close()
+
+
+# ******* pickle in ********
+
+# we open the file for reading
+fileObject = open(file_Name,'r')
+
+# load the object from the file into var b
+PREDICTOR = pickle.load(fileObject)  
+
+
+#-------- ROUTES GO HERE -----------#
+@app.route("/predict", methods=["GET"])
+def predict():
+    pclass = flask.request.args['pclass']
+    sex = flask.request.args['sex']
+    age = flask.request.args['age']
+    fare = flask.request.args['fare']
+    sibsp = flask.request.args['sibsp']
+
+    features = [pclass, sex, age, fare, sibsp]
+    score = PREDICTOR.predict_proba(np.array(features).reshape(1, -1))
+    results = {'survival chances': score[0,1], 'death chances': score[0,0]}
+    return flask.jsonify(results)
+
+# This method takes input via an HTML page
+@app.route('/page')
+def page():
+   with open("page.html", 'r') as viz_file:
+       return viz_file.read()
+
+@app.route('/result', methods=['POST', 'GET'])
+def result():
+    '''Gets prediction using the HTML form'''
+    if flask.request.method == 'POST':
+
+       inputs = flask.request.form
+
+       pclass = inputs['pclass'][0]
+       sex = inputs['sex'][0]
+       age = inputs['age'][0]
+       fare = inputs['fare'][0]
+       sibsp = inputs['sibsp'][0]
+
+       item = np.array([pclass, sex, age, fare, sibsp])
+       score = PREDICTOR.predict_proba(item.reshape(1,-1))
+       results = {'survival chances': score[0,1], 'death chances': score[0,0]}
+       return flask.jsonify(results)
+
+if __name__ == '__main__':
+    '''Connects to the server'''
+
+    HOST = '127.0.0.1'
+    PORT = 5000
+    app.run(HOST, PORT)

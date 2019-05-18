@@ -1,0 +1,1578 @@
+*** Run a python scipt file from notebook.
+%run -i "measurement_locations.py"
+
+from sklearn import datasets, linear_model
+from sklearn.metrics import mean_squared_error
+import warnings
+
+warnings.filterwarnings('ignore')
+pd.set_option('display.max_rows', 200000)
+pd.set_option('display.max_columns', 50000)
+pd.set_option('display.width', 10000)
+
+Linearity: Y and X must have an approximately linear relationship.
+Independence: Errors (residuals)  ?i  and  ?j  must be independent of one another for any i != j.
+Normality: The errors (residuals) follow a Normal distribution.
+Equality of Variances (Homoscedasticity of errors): The errors (residuals) should have a roughly consistent pattern, regardless of the value of X. (There should be no discernable relationship between X and the residuals.)
+
+
+# LOG TRANSFORM
+The linear regression assumes that there is a linear relationship between dataset features and the target variable. 
+Test to make sure this is the case, and if it’s not, try using a log transformation to compensate.
+np.log(x)
+
+
+In exploring various possible transformations, using a for loop may tell you that a power transformation will increase the correlation between the two variables, 
+thus increasing the performance of a linear machine-learning algorithm. 
+You may also try other, further transformations such as square root np.sqrt(x), exponential np.exp(x), and various combinations of all the transformations, such as log inverse np.log(1/x).
+
+
+X and Y should have a linear relationship
+The residuals should be independent one from each other
+The residuals should be normally distributed with mean=0
+Equality of Variances
+
+z = log(x)
+y = b0 + b1 * z
+
+z = x^2
+y = b0 + b1 * z
+
+
+Minimizing the MSE
+For simple linear regression we can derive the intercept and slope that minimize the RSS algebraically
+
+Given variables:
+
+y¯ : the sample mean of observed values Y
+x¯ : the sample mean of observed values X
+sY : the sample standard deviation of observed values Y
+sX : the sample standard deviation of observed values X
+rXY : the sample Pearson correlation coefficient between observed X and Y
+The equations for the intercept and slope that minimize the RSS is:
+
+ß^ 0 = y¯ - ß^ 1x¯
+ß^ 1 = rXY * (std of y / std of x)
+
+
+
+Our simple linear regression is an estimator of the expected value (mean) of  Y
+
+
+
+Standardizing with scikit-learn's `StandardScaler
+
+from sklearn.preprocessing import StandardScaler
+
+# Initialize the scaler.
+ss = StandardScaler()
+
+# Fit the data using the scaler (scale the data).
+Xstd = ss.fit_transform(baseball[['height_in','weight_lb']].values)
+
+ss = StandardScaler()
+Xs = ss.fit_transform(X)
+
+
+**Note:** sklearn models expect the predictor matrix to be 2D and the target to be 1D.
+
+lm = linear_model.LinearRegression()
+
+X = df[["RM"]]
+y = target 
+
+model = lm.fit(X, y)
+# the model variable is now the linear equation the represents 
+# all of the X variables relation to Y
+
+
+import statsmodels.api as sm
+
+X = df[["RM","LSTAT"]].values
+# manually add the intercept column:
+X = np.concatenate([X, np.ones((X.shape[0], 1))], axis=1)
+y = target
+
+
+Make predictions for the X matrix using .predict(X), and score the model ( R2 ) using model.score(X, y).
+
+Plot the predicted values against the true values of the target, and print the model  R2 .
+.score(predictors, target): a class method / function that returns the coefficient of determination  R2 of the prediction (for regression models). Found in many models in scikit-learn (but not all).
+
+E.g. model using only 1 predictive variable
+predictions  =  model.predict(X)
+score =  model.score(X, y)
+
+# model using two predictive variables
+lm = linear_model.LinearRegression()
+
+X = df[["RM","LSTAT"]].values
+y = target 
+
+Fit or train the model
+model = lm.fit(X, y)
+lr.fit(X_train,y_train)
+
+predictions  =  model.predict(X)
+score        =  model.score(X, y)
+
+Attributes in the LinearRegression class object include:
+.coef_: property containing the coeffients for the predictor variables
+.intercept_: value of the intercept
+
+
+linreg.fit(sd_like.values, reading)
+for coef, var in zip(linreg.coef_, sd_like.columns):
+    print(var, coef)
+
+
+SCORE via sklearn's metric's r2_score function
+from sklearn.metrics import r2_score
+r2_score(y_test,y_test_pred)
+mean_squared_error(y_test,y_test_pred)
+
+
+
+Using statsmodels:
+Now we will fit the linear regression model predicting the target from RM and LSTAT, but this time using statsmodels.
+
+The format looks like:
+
+import statsmodels.api as sm
+
+X = df[["RM","LSTAT"]].values
+# manually add the intercept column:
+X = np.concatenate([X, np.ones((X.shape[0], 1))], axis=1)
+y = target
+
+E.g.1
+model = sm.OLS(y, X)                 # y first then X
+model = model.fit()                  # dont need variable x and y
+predictions = model.predict()
+
+E.g.2
+# Create the model with train dataset
+model = sm.OLS(y_train, X_train)
+model = model.fit()
+y_test_pred = model.predict(X_test)
+sns.jointplot(y_test, y_test_pred)
+
+# Print the summary
+model.summary()   # print statistic data for Linear Regression in statsmodule
+model.params      # print coefficents values for all independent/input variables.
+
+
+
+# these SKLearn datasets are loaded in a dictionary format.
+data = datasets.load_boston()
+
+# they have various useful keys, such as...
+print(data.DESCR) # This is like a data dictionary!
+
+# Create dataframe of main data to use as predictors (later). AKA "X"
+df = pd.DataFrame(data.data, columns=data.feature_names)
+
+# target vector (MEDV)
+target = data.target
+
+** Training (fit) and target datasets must always match in length!
+
+
+
+# Split the original dataframe into train and test
+
+E.g.1
+  df_train = df.sample(400).copy()
+df_test = df[~df.index.isin(df_train.index)].copy()
+
+E.g.2
+# Split the original dataframe into train and test
+df_train = df.sample(400)
+df_test = df[~df.index.isin(df_train.index)]
+
+
+# Other approach 
+
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
+
+
+PREDICTION USING TEST DATASET
+y_test_pred = lr.predict(X_test)
+sns.jointplot(y_test, y_test_pred)
+
+
+
+PATSY
+The patsy package allows you to specify the construction of your model using a formula string, and then returns the matrices required to fit the model.
+Let's say we wanted to predict CRIM from TAX, AGE and ZN. We would write a string formula like so:
+formula = 'CRIM ~ TAX + AGE + ZN'
+formula = 'CRIM ~ TAX + AGE + ZN -1'    If you do not want it to create an intercept column, add a -1 to the formula string
+Then, after importing patsy, we can generate our target and predictor matrix by supplying the formula and the dataframe that contains the corresponding columns. 
+y, X = patsy.dmatrices(formula, data=df, return_type='dataframe')
+
+import patsy
+formula = 'CRIM ~ TAX + AGE + ZN'
+y, X = patsy.dmatrices(formula, data=df, return_type='dataframe')
+y = y.values.ravel()
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=.7)
+
+
+
+###  Find best alpha using RidgeCV
+ridge_alphas = np.logspace(-2, 7, 50)
+optimal_ridge = RidgeCV(alphas=ridge_alphas, cv=10)
+optimal_ridge.fit(Xs, y)
+print(optimal_ridge.alpha_)
+
+###  Cross-validate the Ridge regression  R2  with the optimal alpha
+ridge = Ridge(alpha=optimal_ridge.alpha_)
+ridge_scores = cross_val_score(ridge, Xs, y, cv=10)
+print(ridge_scores)
+print(np.mean(ridge_scores))
+
+
+###  Find best alpha using LassoCV
+optimal_lasso = LassoCV(n_alphas=500, cv=10, verbose=1)
+optimal_lasso.fit(Xs, y)
+print(optimal_lasso.alpha_)
+
+###  Cross-validate the Lasso regression  R2  with the optimal alpha
+lasso = Lasso(alpha=optimal_lasso.alpha_)
+lasso_scores = cross_val_score(lasso, Xs, y, cv=10)
+print(lasso_scores)
+print(np.mean(lasso_scores)) 
+
+
+###  Find best alpha and l1_ratio using ElasticNetCV
+l1_ratios = np.linspace(0.01, 1.0, 25)
+
+optimal_enet = ElasticNetCV(l1_ratio=l1_ratios, n_alphas=30, cv=10)
+optimal_enet.fit(Xs, y)
+print(optimal_enet.alpha_)
+print(optimal_enet.l1_ratio_)
+
+# Build elastic net regression predicting shares from the five features.
+# Initially cross validated with 10 folds but it produced a poorer R^2 result.
+
+enet = ElasticNet(alpha=optimal_enet.alpha_, l1_ratio=optimal_enet.l1_ratio_)
+enet_scores = cross_val_score(enet, X_test, y_test, cv=8)
+
+print(enet_scores)
+print(np.mean(enet_scores))
+
+
+###  Look at the coefficients for variables in the Lasso
+lasso.fit(Xs, y)
+lasso_coefs = pd.DataFrame({'variable':X.columns,
+                            'coef':lasso.coef_,
+                            'abs_coef':np.abs(lasso.coef_)})
+lasso_coefs.sort_values('abs_coef', inplace=True, ascending=False)
+
+
+###  Look at the coefficients for variables in the Ridge  - Not useful
+ridge.fit(Xs, y)
+ridge_coefs = pd.DataFrame({'variable':X.columns,
+                            'coef':ridge.coef_,
+                            'abs_coef':np.abs(ridge.coef_)})
+ridge_coefs.sort_values('abs_coef', inplace=True, ascending=False)
+
+
+
+############   CONFUSION MATRIX    ############   
+conmat = np.array(confusion_matrix(y_test, yhat, labels=[1,0]))
+
+confusion = pd.DataFrame(conmat, index=['is_male', 'is_female'],
+                         columns=['predicted_male','predicted_female'])
+
+#####  Manually calculate the true positives, false positives, true negatives, and false negatives
+tp = np.sum((y_test == 1) & (yhat == 1))
+fp = np.sum((y_test == 0) & (yhat == 1))
+tn = np.sum((y_test == 0) & (yhat == 0))
+fn = np.sum((y_test == 1) & (yhat == 0))
+print(tp, fp, tn, fn)
+
+
+### Logistic Regression with Ridge Penalty:
+
+Important LogisticRegressionCV arguments:
+
+penalty: this can be one of 'l1' or 'l2'. L1 is the Lasso, and L2 is the Ridge.
+Cs: How many different (automatically-selected) regularization strengths should be tested.
+cv: How many cross-validation folds should be used to test regularization strength.
+solver: When using the lasso penalty, this should be set to 'liblinear'
+Note: The C regularization strength is the inverse of alpha. That is to say, C = 1./alpha
+
+from sklearn.linear_model import LogisticRegressionCV
+lr_ridge = LogisticRegressionCV(penalty='l2', Cs=200, cv=25)
+lr_ridge.fit(X_train, y_train)
+
+
+### Feature Selection 
+# Using RFECV
+from sklearn.feature_selection import RFECV
+from sklearn.linear_model import LogisticRegression
+
+lr = LogisticRegression()
+selector = RFECV(lr, step=1, cv=10)
+selector = selector.fit(X, y)
+
+print(selector.support_)
+print(selector.ranking_)
+
+s = np.array(cols)[selector.support_]
+
+
+### Feature Selection 
+from sklearn.feature_selection import SelectKBest, chi2, f_classif
+
+# Build the selector — we'll build one with each score type.
+skb_f = SelectKBest(f_classif, k=5)
+skb_chi2 = SelectKBest(chi2, k=5)
+
+# Train the selector on the data.
+skb_f.fit(X, y)
+skb_chi2.fit(X, y)
+
+# Examine the results:
+kbest = pd.DataFrame([cols, list(skb_f.scores_), list(skb_chi2.scores_)], 
+                     index=['feature','f_classif','chi2 score']).T.sort_values('f_classif', ascending=False)
+
+Other example:
+# Create and fit selector
+selector = SelectKBest(f_classif, k=5)
+selector.fit(features_df, target)
+# Get idxs of columns to keep ****
+cols = selector.get_support(indices=True)
+# Create new dataframe with only desired columns, or overwrite existing
+features_df_new = features_df[cols]
+
+
+### Feature Elimination Using the Lasso Penalty
+The L1 penalty is a popular method for feature selection. As the regularization strength increases, more features will be removed.
+
+Load the LogisticRegressionCV class.
+
+1) Standardize your predictor matrix (required for regularization).
+
+Create a logistic regression cross-validator object:
+Set penalty='l1' (lasso).
+Set Cs=100 (search 100 different regularization strengths).
+Set solver='liblinear' (required for the lasso penalty).
+Set cv=10 for 10 cross-validation folds.
+Fit on the target and standardized predictors.
+Sort the logistic regression coefficients by absolute value.
+
+E.g.
+from sklearn.linear_model import LogisticRegressionCV
+
+lrcv = LogisticRegressionCV(penalty='l1', Cs=100, cv=10, solver='liblinear')
+lrcv.fit(Xs, y)
+
+
+
+### COMPARE FEATURES SETS
+lr = LogisticRegression(C=lrcv.C_[0], penalty='l1', solver='liblinear')
+
+# Defining a function to test our best features head to head.
+def score(X):
+    scores = cross_val_score(lr, X, y, cv=5)
+    return scores.mean(), scores.std()
+
+# A list of all of our lists of best features being executed in the score function.
+all_scores = [
+    score(X[kbest_columns]),
+    score(X[rfecv_columns]),
+    score(X[lasso_columns]),
+    score(X)]
+
+# Putting results into a DataFrame.
+pd.DataFrame(all_scores, columns=['mean score', 'std score'], index = ['kbest', 'rfecv', 'lr', 'all'])
+
+
+
+
+#########  Stochastic Gradient Descent #########   
+from sklearn.linear_model import SGDRegressor, SGDClassifier
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import GridSearchCV
+
+# Using PATSY / DMATRICE to define or create multiple columns. 
+E.g.1
+f = 'value ~ '+' + '.join([c for c in prop_samp.columns if not c == 'value'])+' -1'
+print(f)
+y, X = patsy.dmatrices(f, data=prop_samp, return_type='dataframe')
+y = y.values.ravel()   
+
+# Standardize the predictors
+ss = StandardScaler()
+Xs = ss.fit_transform(X)
+
+# Set up the gridsearch parameters for regression:  
+sgd_params = {
+    'loss':['squared_loss','huber'],
+    'penalty':['l1','l2'],
+    'alpha':np.logspace(-5,1,25)}
+
+#  Stochastic Gradient Descent - Regression 
+sgd_reg = SGDRegressor()              
+sgd_reg_gs = GridSearchCV(sgd_reg, sgd_params, cv=5, verbose=False)  
+ 
+** used with grid searching to find the optimal parameters for certain models.
+
+sgd_reg_gs.fit(Xs, y)
+print(sgd_reg_gs.best_params_)
+print(sgd_reg_gs.best_score_)
+sgd_reg = sgd_reg_gs.best_estimator_
+
+
+# Set up the gridsearch parameters for Classifier:         ** Remember to calculate baseline accuracy first
+sgd_cls_params = {
+    'loss':['log'],
+    'penalty':['l1','l2'],
+    'alpha':np.logspace(-5,2,50)}
+
+#  Stochastic Gradient Descent - Classifier
+sgd_cls = SGDClassifier()
+sgd_cls_gs = GridSearchCV(sgd_cls, sgd_cls_params, cv=5, verbose=1)  # Set up gridsearch parameters
+sgd_cls_gs.fit(Xs, y)
+print(sgd_cls_gs.best_params_)
+print(sgd_cls_gs.best_score_)
+sgd_cls = sgd_cls_gs.best_estimator_
+
+
+
+
+################  GRID SEARCH HYPERPARAMETERS for training data  ################    
+**Note:** Grid searching can be done with `GridSearchCV` or `LogisticRegressionCV`. 
+They operate differently — the grid search object is more general and can be applied to any model. 
+The `LogisticRegressionCV` is specific to tuning the logistic regression hyperparameters. 
+The `LogisticRegressionCV` is recommended, but the downside is that the lasso and ridge must be searched separately.
+
+
+# Let's set our model parameters. 
+logreg_cv = LogisticRegressionCV(Cs=100, 
+                                 cv=5, 
+                                 penalty='l1', 
+                                 scoring='accuracy', 
+                                 solver='liblinear')
+logreg_cv.fit(X_train, y_train)
+best_C = dict(zip(logreg_cv.classes_, logreg_cv.C_))
+print('best C for class:', best_C)
+
+After the above steps, build three logistic regression models using the best parameters for each target class.
+
+
+## E.g.1 for GRIDSEARCHCV ## 
+from sklearn.model_selection import GridSearchCV
+knn_params = {
+    'n_neighbors':[1,3,5,9,15,21],
+    'weights':['uniform','distance'],
+    'metric':['euclidean','manhattan']
+}
+
+knn_gridsearch = GridSearchCV(KNeighborsClassifier(), knn_params, cv=5, verbose=1)
+knn_gridsearch.fit(X_train, y_train)
+knn_gridsearch.best_score_
+knn_gridsearch.best_params_
+best_knn = knn_gridsearch.best_estimator_
+best_knn.score(X_test, y_test)
+
+
+## E.g.2 for GRIDSEARCHCV ## 
+gs_params = {
+    'penalty':['l1','l2'],
+    'solver':['liblinear'],
+    'C':np.logspace(-5,0,100)
+}
+
+lr_gridsearch = GridSearchCV(LogisticRegression(), gs_params, cv=5, verbose=1)
+lr_gridsearch.fit(X_train, y_train)
+lr_gridsearch.best_score_
+lr_gridsearch.best_params_
+best_lr = lr_gridsearch.best_estimator_
+best_lr.score(X_test, y_test)
+
+coef_df = pd.DataFrame({
+        'coef':best_lr.coef_[0],
+        'feature':X.columns
+    })
+
+coef_df['abs_coef'] = np.abs(coef_df.coef)
+coef_df.sort_values('abs_coef', ascending=False, inplace=True)
+
+
+
+****** CART - DECISION TREE *******
+
+# Regression Tree
+from sklearn.tree import DecisionTreeRegressor
+dtr3 = DecisionTreeRegressor(max_depth=3)
+dtr3.fit(Xr, yr)
+dtr3_scores = cross_val_score(dtr3, Xr, yr, cv=4)
+print(np.mean(dtr3_scores))
+
+
+# Classifier Tree
+from sklearn.tree import DecisionTreeClassifier
+dtc3 = DecisionTreeClassifier(max_depth=3)
+dtc3.fit(Xc, yc)
+dtc3_scores = cross_val_score(dtc3, Xc, yc, cv=4, scoring='roc_auc')
+print(np.mean(dtc3_scores))
+
+
+# Using GridSearchCV to find the best decision tree classifier
+
+Measure	What it does
+max_depth	How many nodes deep can the decision tree go?
+max_features	Is there a cut off to the number of features to use?
+max_leaf_nodes	How many leaves can be generated per node?
+min_samples_leaf	How many samples need to be included at a leaf, at a minimum?
+min_samples_split	How many samples need to be included at a node, at a minimum?
+ 
+
+# gridsearch params
+dtc_params = {
+    'max_depth':[None,1,2,3,4],
+    'max_features':[None,'log2','sqrt',2,3,4,5],
+    'min_samples_split':[2,3,4,5,10,15,20,25,30,40,50]
+}
+
+from sklearn.model_selection import GridSearchCV
+# set the gridsearch
+dtc_gs = GridSearchCV(DecisionTreeClassifier(), 
+                      dtc_params, 
+                      cv=5, 
+                      verbose=1, 
+                      scoring='roc_auc', 
+                      n_jobs=-1)
+
+# use the gridearc C model to fit the data
+dtc_gs.fit(X, y)
+
+dtc_best = dtc_gs.best_estimator_
+print(dtc_gs.best_params_)
+print(dtc_gs.best_score_)
+
+
+
+##  BAGGING - RANDOM FOREST  - KNN
+
+from sklearn.model_selection import cross_val_score
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import BaggingClassifier
+
+knn = KNeighborsClassifier()
+bagging = BaggingClassifier(base_estimator = knn, max_samples=0.5, max_features=0.5)
+
+print ("KNN Score:\t", cross_val_score(knn, X, y, cv=5, n_jobs=-1).mean())
+print ("Bagging Score:\t", cross_val_score(bagging, X, y, cv=5, n_jobs=-1).mean())
+
+bagging.fit(X,y)
+
+# this outputs one prediction per row
+bagging.predict(X[:5])
+
+# this outputs many predictions (one for every model) for every row
+bagging.predict_proba(X[:5]) 
+
+
+
+##  BAGGING - RANDOM FOREST - Decision Tree
+
+from sklearn.model_selection import cross_val_score
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import BaggingClassifier
+
+dtc = DecisionTreeClassifier(max_depth=4)
+bagging = BaggingClassifier(base_estimator = dtc, max_samples=0.5, max_features=0.5)
+
+print ("Decision Tree Score:\t", cross_val_score(dtc, X_train, y_train, cv=5, n_jobs=-1).mean())
+print ("Bagging Score:\t", cross_val_score(bagging, X_train, y_train, cv=5, n_jobs=-1).mean())
+
+bagging.fit(X_test,y_test)
+
+# this outputs one prediction per row
+bagging.predict(X_test[:5])
+
+# this outputs many predictions (one for every model) for every row
+bagging.predict_proba(X_test[:5]) 
+
+
+
+##  BAGGING - RANDOM FOREST - SVM
+
+from sklearn.svm import SVC
+from sklearn.model_selection import cross_val_score
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import BaggingClassifier
+
+svm = SVC(kernel='rbf', degree=3)
+bagging = BaggingClassifier(base_estimator = svm, max_samples=0.5, max_features=0.5)
+
+print ("SVM Score:\t", cross_val_score(svm, X_train, y_train, cv=5, n_jobs=-1).mean())
+print ("Bagging Score:\t", cross_val_score(bagging, X_train, y_train, cv=5, n_jobs=-1).mean())
+
+bagging.fit(X_test,y_test)
+
+# this outputs one prediction per row
+bagging.predict(X_test)
+
+# this outputs many predictions (one for every model) for every row
+bagging.predict_proba(X_test) 
+
+
+
+### XG-BOOST 
+# Example 1: 
+import xgboost as xgb
+xg_reg = xgb.XGBRegressor(objective ='reg:linear', \
+                colsample_bytree = 0.3, learning_rate = 0.1,\
+                max_depth = 5, alpha = 10, n_estimators = 10)
+xg_reg.fit(X_train,y_train)
+preds = xg_reg.predict(X_test)
+
+# Example 2:
+model = XGBClassifier()
+
+model.fit(X_train, y_train)
+
+
+# make predictions for test data
+
+y_pred = model.predict(X_test)
+
+predictions = [round(value) for value in y_pred]
+
+
+
+### ADA-BOOST CLASSIFIER
+
+from sklearn.ensemble import AdaBoostClassifier
+abc =AdaBoostClassifier(n_estimators=50, base_estimator=svc,learning_rate=1)
+model = abc.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+print("Accuracy:",metrics.accuracy_score(y_test, y_pred))
+
+
+
+
+##### CLASS IMBALANCE - DOWNSAMPLING using pandas RESAMPLE function ##### 
+
+#Create major and minor df to split the majority and minority classes
+df_major = X_train[X_train['WnvPresent']==0]
+df_minor = X_train[X_train['WnvPresent']==1]
+    
+#downsample the majority class for ~ 50:50 (385 minority)
+df_downsample = resample(df_major, replace=False, n_samples=385, random_state=42)
+#Concatenate back with the minority class
+df_downsample = pd.concat([df_downsample, df_minor])
+    
+#Create the new training X and y
+df_downsample_y=df_downsample['WnvPresent']
+df_downsample_X=df_downsample.drop('WnvPresent',axis=1)
+
+
+
+
+### PCA (Principle Component Analysis)
+
+from sklearn.decomposition import PCA
+
+## Step 1: Find z-score  or Standardize first
+
+E.g.1
+ z = Minus mean then divide by STD
+
+E.g.2
+from sklearn.preprocessing import StandardScaler
+ss = StandardScaler()
+Xn = ss.fit_transform(X)  
+
+
+## Step 2: Fit PCA
+pca = PCA(n_components=n)  where n is columns/features count
+pca = PCA()
+pca.fit(Xn)
+
+
+## Step 3: Weighting Eigenvectors
+# Look at principal component weighting vectors (eigenvectors) .components_
+
+E.g.1  
+pca_components = subjective_pca.components_
+
+np.round(pca_components,2)
+
+E.g.2   
+".components_" return a list type
+pc1_ev = pca.components_[0]
+
+
+## Step 4: Eigenvalues & explained variance ratio
+subj_exp_var_eigenvals = subjective_pca.explained_variance_
+subj_exp_var_pct = subjective_pca.explained_variance_ratio_
+
+
+## Step 5: Transform into PCA space
+subj_to_pcs = subjective_pca.transform(subjective.values)
+
+# Use only 3 out of 5 features => Dimensionality Reduction (Depend on your selection % of representation of importance)
+np.round(subj_to_pcs[:2],2)
+
+# Return the 1st PCA component ratio only
+round(subj_exp_var_eigenvals[0]/sum(subj_exp_var_eigenvals),2)
+
+# Verify these columns are uncorrelated
+sns.pairplot(pd.DataFrame(pref_pcs, columns=['PC1','PC2','PC3','PC4','PC5']), kind='reg')
+pd.DataFrame(pref_pcs, columns=['PC1','PC2','PC3','PC4','PC5']).corr().apply(np.round)
+
+
+
+******* Clustering ***************
+## Standardize or not is up to you!
+
+from sklearn.cluster import KMeans, k_means
+from sklearn.metrics import silhouette_score
+
+model = KMeans(n_clusters=3, random_state=0)    # Default is 8
+model.fit(df)
+
+labels = model.labels_
+centroids = model.cluster_centers_
+
+print("Predicted clusters to points: ", predicted)
+print("Location of centroids: ")
+print(centroids)
+
+**Inertia**: 
+The sum of squared errors for each cluster.
+.inertia_ = Sum of squared distances of samples to their closest cluster center.
+Range from 0 and higher
+
+**Silhouette coefficient**: 
+The measure of how far apart clusters are from each other.
+Silhouette value is a measure of how similar an object is to its own cluster (cohesion) compared to other clusters (separation). 
+It ranges from -1 to +1, where high value indicates that object is well matched to its own cluster & poorly matched to neighboring clusters.
+
+E.g.1
+metrics.silhouette_score(X_scaled, labels, metric='euclidean')
+
+E.g.2
+score = silhouette_score(df, predicted, metric='euclidean')
+
+
+**** Looping to find k
+for k in range(1,20+1): 
+    k_meanX = KMeans(n_clusters=k)
+    k_meanX.fit(X)
+    labels_X = k_meanX.labels_
+
+
+## Function for clustering
+
+def cluster(ran, data, version):
+    for k in ran:
+        k_means = KMeans(n_clusters=k)
+        k_means.fit(data)
+        labels = k_means.labels_
+        score = silhouette_score(data, labels)
+        print(k,score)
+        results.loc[len(results)]=['c'+str(k), score, version]
+
+
+## Function for passing thru various scalers before clustering fitting
+
+def opt_cluster(ran, data):
+    print('AS IS')
+    cluster(ran, data, 'default')
+    
+    # normalized version
+    print('NORMALIZED')
+    Xn = normalize(data)
+    cluster(ran, Xn, 'normalized')
+    
+    # standard scale version
+    print('STANDARD SCALED')
+    SS = StandardScaler()
+    Xs = SS.fit_transform(data)
+    cluster(ran, Xs, 'standard_scaler')
+    
+    # minmax scale version
+    print('MIN MAX SCALER')
+    MM = MinMaxScaler()
+    Xmm = MM.fit_transform(data)
+    cluster(ran, Xmm, 'min_max_scaler')
+
+    return results.loc[results['silhouette'].idxmax()]
+
+print('Estimated number of clusters: %d' % n_clusters_)
+print("Homogeneity: %0.3f" % metrics.homogeneity_score(y, labels))
+print("Completeness: %0.3f" % metrics.completeness_score(y, labels))
+print("V-measure: %0.3f" % metrics.v_measure_score(y, labels))
+
+
+
+****** DBSCAN CLUSTERING ******  
+Great for spherical clusters
+
+from sklearn.cluster import DBSCAN
+
+Xs = StandardScaler().fit_transform(X)
+Xs = pd.DataFrame(Xs, columns=X.columns)
+
+E.g.1
+db = DBSCAN(eps=0.3, min_samples=10).fit(X)
+
+E.g.2
+dbscan = DBSCAN(eps = 3, min_samples = 3)
+dbscan.fit(Xs)
+
+core_samples = db.core_sample_indices_
+labels = db.labels_
+
+# how many clusters do we have?
+n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
+print(n_clusters_)
+
+print("Silhouette Coefficient: %0.3f"
+      % metrics.silhouette_score(X, labels))
+
+print('Estimated number of clusters: %d' % n_clusters_)
+print("Homogeneity: %0.3f" % metrics.homogeneity_score(y, labels))
+print("Completeness: %0.3f" % metrics.completeness_score(y, labels))
+print("V-measure: %0.3f" % metrics.v_measure_score(y, labels))
+
+
+
+
+******* HIERARCHICAL CLUSTERING *******  
+Great for high frequencies 
+
+from scipy.cluster.hierarchy import dendrogram, linkage, cophenet, fcluster
+
+Z = linkage(X, 'ward')
+c, coph_dists = cophenet(Z, pdist(X))
+
+def plot_dendogram(df):
+    # Data preparation:
+    X = df.values
+    Z = linkage(X, 'ward')
+    
+    # Plotting:
+    plt.title('Dendrogram')
+    plt.xlabel('Index Numbers')
+    plt.ylabel('Distance')
+    dendrogram(
+        Z,
+        leaf_rotation=90.,  
+        leaf_font_size=8.,
+    )
+    plt.show()     
+plot_dendogram(lang)
+
+max_dist = 200 # Pairwise distance.
+clusters = fcluster(Z, max_dist, criterion='distance')
+clusters
+
+
+
+# HIERARCHICAL/AGGLOMERATIVE:    
+# AgglomerativeClustering: Hierarchical clustering (bottom-up)
+
+from sklearn.cluster import AgglomerativeClustering
+
+aggclust = AgglomerativeClustering(n_clusters=n_clusters_agg)
+aggclust.fit(X.iloc[:, 0:2])
+
+
+
+****************************  NATURAL LANGUAGE PROCESSING ******************************************    
+
+Steps: 
+
+Tokenization -> 
+Remove stop-words -> 
+Stemming -> 
+Add ngram/bigrams -> 
+TF-IDF -> 
+add PoS -> 
+classification
+
+*****************************************************************************************
+
+******** NLP - Count Vectorizer ********
+
+# NLP Using a count vectorizer.  
+from sklearn.feature_extraction.text import CountVectorizer
+
+# Lets use the stop_words argument to remove words like "and, the, a"
+# default option is lowercase=True, setting it to False will return more features
+
+cvec = CountVectorizer(stop_words='english')
+
+# Fitting the vectorizer on our training data
+cvec.fit(data_train['data'])
+
+# and check out the length of the vectorized data after
+print('# of features: {}'.format( len(cvec.get_feature_names()) ))
+
+# Transforming our x_train data using our fit cvec.
+# And converting the result to a DataFrame - Using .todense()
+
+X_train = pd.DataFrame(cvec.transform(data_train['data']).todense(),
+                       columns=cvec.get_feature_names())
+
+X_train.sum()   # sum to get the counts for each tokens.
+
+# Converting out vectorized test data to a dataframe
+# Using the CVEC which we fit earlier
+
+X_test = pd.DataFrame(cvec.transform(data_test['data']).todense(),
+                      columns=cvec.get_feature_names())
+
+# Getting our Y test information
+y_test = data_test['target']
+
+
+E.g.2
+cvt      =  CountVectorizer(strip_accents='unicode', stop_words="english", min_df=51)
+X_all    =  cvt.fit_transform(tweets_df['TEXT'])
+columns  =  np.array(cvt.get_feature_names())            # ndarray (for indexing
+
+
+
+
+**********  NLP - HASHING ********** 
+
+from sklearn.feature_extraction.text import HashingVectorizer, TfidfVectorizer
+from sklearn.pipeline import make_pipeline
+from sklearn.metrics import accuracy_score
+
+# Use Pipeline with Logistic Reg 
+# A pipeline is a way for us to construct a function to execute
+# the same tasks continuously
+# In our variable model we fit a vectorizer, and a model
+# our Model variable is stored with the fit vectorizer and model
+# so we can call model.xxxx it will uses that information stored
+
+model = make_pipeline(HashingVectorizer(stop_words='english'),
+					n_features=2**16,
+                      LogisticRegression(),
+                      )
+model.fit(data_train['data'], y_train)
+
+y_pred = model.predict(data_test['data'])
+print(accuracy_score(y_test, y_pred))
+
+
+### TFIDF + using 1000 features 
+
+model = make_pipeline(TfidfVectorizer(stop_words='english',
+                                      sublinear_tf=True,
+                                      max_df=0.5,
+                                      max_features=1000),
+                      LogisticRegression(),
+                      )
+model.fit(data_train['data'], y_train)
+y_pred = model.predict(data_test['data'])
+print(accuracy_score(y_test, y_pred))
+print("Number of features:", len(model.steps[0][1].get_feature_names()))
+
+
+
+**********  NAIVE BAYES CLASSIFIER ********** 
+
+from sklearn import naive_bayes
+
+classifier1 = naive_bayes.MultinomialNB().fit(feature_set, target)
+
+from sklearn.model_selection import cross_val_score
+cross_val_score(classifier1, feature_set, target, cv=5)
+1. - np.mean(target)
+
+- BernoulliNB is designed for binary/Boolean features.
+
+- Multinomial Naive Bayes classifier is suitable for classification with discrete features 
+(e.g., word counts for text classification). The multinomial distribution normally requires integer feature counts. 
+However, in practice, fractional counts such as tf-idf may also work.
+
+- GaussianNB is designed for continuous features (that can be scaled between zero and one) and is assumed to be normally distributed.
+
+
+
+
+
+
+**********   NLP - LDA method ( Topic Modelling) **********  
+
+from gensim import corpora, models, matutils
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
+from collections import defaultdict
+
+#### Using STOP WORDS #### 
+
+from nltk.corpus import stopwords
+import nltk
+
+# Use stop word from NLTK
+
+nltk.download('stopwords')
+nltk_stops = stopwords.words()
+
+# Use stop word from SKLearn
+custom_stop_words = list(ENGLISH_STOP_WORDS)
+
+# You can of course add your own custom stopwords
+custom_stop_words.append('mother')
+custom_stop_words.append('brother')
+
+# print stopwords
+print(vect.get_stop_words())
+
+# Fit and Transform using sklearn stop word.
+vectorizer = CountVectorizer(stop_words=custom_stop_words)
+X = vectorizer.fit_transform(df['text'])
+
+
+# Use Vocabulary - parameter of CountVectorizer
+# `.vocabulary_` attribute of the vectorizer contains a dictionary of terms. 
+
+vectorizer.vocabulary_
+vectorizer.get_feature_names()
+
+
+# Get counts of tokens.
+docs = pd.DataFrame(X.todense(), 
+                    columns=vectorizer.get_feature_names())
+docs.sum()
+
+
+# *** Setup Vocabulary Dictionary by swapping key and value:
+# This is the fastest way to swap a dictionary key / value order.  
+# This is the format gensim LDA expects it's vocabulary.
+
+vocab = {v: k for k, v in vectorizer.vocabulary_.items()}
+
+
+# Create a token to id mapping with gensim's `corpora.Dictionary
+# for each word in document, find the freq in reference to the default dictionary.
+
+frequency = defaultdict(int)
+for text in documents:           
+    for token in text.split():
+        frequency[token] += 1
+frequency
+
+
+# Remove word that only appear once or appear in the stopwords
+# Use NLTK stopwords for trimming
+ 
+texts = [[token for token in text.split() if frequency[token] > 1 and token not in nltk_stops]
+          for text in documents]
+
+
+# Create gensim dictionary object
+dictionary = corpora.Dictionary(texts)
+
+
+# Create corpus matrix
+# Use the `dictionary.doc2bow()` function to convert the texts to bag-of-word representations.**
+
+corpus = [dictionary.doc2bow(text) for text in texts]
+corpus
+
+
+### 8. How to set up LDA model
+### Using Gensim module:
+
+lda = models.LdaModel(
+
+    # supply our sparse predictor matrix wrapped in a matutils.Sparse2Corpus object
+    matutils.Sparse2Corpus(X, documents_columns=False),
+    
+    # or alternatively use corpus object created with dictionary in previous frame!
+    # corpus,
+
+    # The number of topics we want:
+    num_topics  =  3,
+
+    # how many passes over the vocabulary:
+    passes      =  20,
+
+    # The id2word vocabulary we made ourselves
+    id2word     =  vocab
+
+    # or use the gensim dictionary object!
+    # id2word     =  dictionary
+)
+
+E.g.
+lda = models.LdaModel(
+    matutils.Sparse2Corpus(X, documents_columns=False),
+    num_topics  =  3,
+    passes      =  20,
+    id2word     =  vocab
+)
+
+
+#  Print Topic using .print_topics function
+#  The number before the word is the probability of occurance for that word in the topic.
+
+for topic in lda.print_topics():
+    print(topic[1])        # topic[0] is the index number.
+    print('')
+
+
+
+############  Fit an LDA model with sklearn ############# 
+
+from sklearn.decomposition import LatentDirichletAllocation
+lda = LatentDirichletAllocation(n_components=3)
+lda.fit(X)
+lda.components_
+lda.transform(X)     
+### *** Use `.transform()` method to convert matrix into topic scores.**
+
+
+
+
+# ************************  PIPELINE  ************************ 
+# Setup a "Pipeline" to vectorize and use MultinomialNB classifier. 
+
+# MultinomialNB
+pipeline = Pipeline([
+    ('vect', CountVectorizer(lowercase=True, strip_accents='unicode', stop_words=stop)),
+    ('tfidf', TfidfTransformer()),
+    ('cls', MultinomialNB())
+]) 
+pipeline.fit(tweets_train["TEXT"], tweets_train["LANG"])
+predicted = pipeline.predict(tweets_test["TEXT"])
+pipeline.score(tweets_test["TEXT"], tweets_test["LANG"])
+
+------------------------------------------------------------------------------
+
+# BernoulliNB
+pipeline = Pipeline([
+    ('vect', cvt),
+    ('tfidf', TfidfTransformer()), #by adding this we get +2%
+    ('cls', BernoulliNB())
+]) 
+pipeline.fit(tweets_train["TEXT"], tweets_train["LANG"])
+predicted = pipeline.predict(tweets_test["TEXT"])
+pipeline.score(tweets_test["TEXT"], tweets_test["LANG"])
+
+------------------------------------------------------------------------------
+
+# LogisticRegression
+pipeline = Pipeline([
+    ('vect', cvt),
+    ('tfidf', TfidfTransformer()),
+    ('cls', LogisticRegression())
+]) 
+pipeline.fit(tweets_train["TEXT"], tweets_train["LANG"])
+predicted = pipeline.predict(tweets_test["TEXT"])
+pipeline.score(tweets_test["TEXT"], tweets_test["LANG"])
+
+------------------------------------------------------------------------------
+
+from sklearn.ensemble import RandomForestClassifier
+
+# RF - 100
+pipeline = Pipeline([
+    ('vect', cvt),
+    ('tfidf', TfidfTransformer()),
+    ('rf', RandomForestClassifier(n_estimators=100))
+]) 
+pipeline.fit(tweets_train["TEXT"], tweets_train["LANG"])
+predicted = pipeline.predict(tweets_test["TEXT"])
+pipeline.score(tweets_test["TEXT"], tweets_test["LANG"])
+
+
+
+
+
+******** SENTIMENT ANALYSIS *************
+
+# Spacy
+
+import spacy
+en_nlp = spacy.load('en')
+
+tmp = en_nlp(sentence)
+for token in tmp:
+    print(token,token.pos_)
+
+# Multithread Parser:
+parsed_quotes = []
+for i, parsed in enumerate(en_nlp.pipe(rt.qt.values, batch_size=50, n_threads=4)):
+    assert parsed.is_parsed
+    if (i % 1000) == 0:
+        print(i)
+    parsed_quotes.append(parsed)        
+
+
+# VaderSentiment
+
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+
+analyzer = SentimentIntensityAnalyzer()
+for sentence in rt.quote.values[0:2]:
+    vs = analyzer.polarity_scores(sentence)
+    print(sentence)
+    print(vs)
+
+
+
+****** NLP - Naive Bayes with CountVectorizer ******
+
+# use default options for CountVectorizer
+vect = CountVectorizer()
+
+# create document-term matrices
+X_train_dtm = vect.fit_transform(X_train)
+X_test_dtm = vect.transform(X_test)
+
+# use Naive Bayes  to predict the star rating
+nb = MultinomialNB()
+nb.fit(X_train_dtm, y_train)
+y_pred_class = nb.predict(X_test_dtm)
+
+# calculate accuracy
+print(metrics.accuracy_score(y_test, y_pred_class))
+
+
+
+******* define a function that accepts a vectorizer and calculates the accuracy ******* 
+
+def tokenize_test(vect):
+    X_train_dtm = vect.fit_transform(X_train)
+    print('Features: ', X_train_dtm.shape[1])
+    X_test_dtm = vect.transform(X_test)
+    nb = MultinomialNB()
+    nb.fit(X_train_dtm, y_train)
+    y_pred_class = nb.predict(X_test_dtm)
+    print('Accuracy: ', metrics.accuracy_score(y_test, y_pred_class))
+
+
+******* Other CountVectorizer Options *******
+
+Example 1
+# include 1-grams and 2-grams, and limit the number of features
+
+vect = CountVectorizer(ngram_range=(1, 2), max_features=100000)
+tokenize_test(vect)
+
+
+Example 2
+# include 1-grams and 2-grams, and only include terms that appear at least 2 times
+# Change the minimum document frequency for terms and test the model's performance.
+
+vect = CountVectorizer(ngram_range=(1, 2), min_df=2)
+tokenize_test(vect)
+
+
+Example 3
+# remove English stop words and only keep 100 features
+
+vect = CountVectorizer(stop_words='english', max_features=100)
+tokenize_test(vect)
+
+
+
+
+************* Use `TextBlob` to convert the text ************* 
+from textblob import TextBlob, Word
+
+# save it as a TextBlob object
+review = TextBlob(yelp_best_worst.text[0])
+
+# list the words
+review.words
+
+# list the sentences
+review.sentences
+
+# some string methods are available
+review.lower()
+
+# spelling correction
+TextBlob('15 minuets late').correct()
+
+# Perform spellchecking with .spellcheck()
+Word('parot').spellcheck()
+
+# Extract definitions with .define()
+Word('bank').define('n')
+
+
+
+
+*************  SnowballStemmer ************* 
+from nltk.stem.snowball import SnowballStemmer
+
+# initialize stemmer
+stemmer = SnowballStemmer('english')
+
+# stem each word
+print([stemmer.stem(word) for word in review.words])
+
+
+***********  Use built-in `lemmatize` function ************
+  
+# assume every word is a noun
+print([word.lemmatize() for word in review.words])
+
+# assume every word is a verb
+print([word.lemmatize(pos='v') for word in review.words])
+
+
+
+
+******* define a function that uses TextBlob and lemmatize to lemmatize text  ******* 
+
+# define a function that accepts text and returns a list of lemmas
+def split_into_lemmas(text):
+    text = text.lower()
+    words = TextBlob(text).words
+    return [word.lemmatize() for word in words]
+
+
+### Use split_into_lemmas as the feature extraction function (WARNING: SLOW!)
+
+vect = CountVectorizer(analyzer=split_into_lemmas)
+tokenize_test(vect)
+
+
+
+
+***********   TF-IDF   ************ 
+# Build a simple TF-IDF using CountVectorizer
+
+
+# Term Frequency - can be calulated with default CountVectorizer.
+vect = CountVectorizer()
+tf = pd.DataFrame(vect.fit_transform(simple_train).toarray(), columns=vect.get_feature_names())
+
+
+# Inverse Document Frequency can be calculated with CountVectorizer and argument binary=True.
+vect = CountVectorizer(binary=True)
+df = vect.fit_transform(simple_train).toarray().sum(axis=0)
+pd.DataFrame(df.reshape(1, 6), columns=vect.get_feature_names())
+
+
+# Term Frequency-Inverse Document Frequency (simple version)
+tf/df
+
+
+# # Term Frequency-Inverse Document Frequency (TfidfVectorizer version)
+vect = TfidfVectorizer()
+pd.DataFrame(vect.fit_transform(simple_train).toarray(), columns=vect.get_feature_names()) 
+
+
+# create a document-term matrix using TF-IDF
+vect = TfidfVectorizer(stop_words='english')
+dtm = vect.fit_transform(yelp.text)
+features = vect.get_feature_names()
+dtm.shape
+
+
+# ****** Other Example 1 - for TfidfVectorizer ****** 
+# We can use the TfidfVectorizer to find ngrams for us
+vect = TfidfVectorizer(ngram_range=(2,4))
+
+
+# ****** Other Example 2 - for TfidfVectorizer ****** 
+# Preprocess our text data to Tfidf
+tfv = TfidfVectorizer(ngram_range=(1,4), max_features=2000)
+X = tfv.fit_transform(clean_text).todense()
+accuracies = cross_val_score(LogisticRegression(), X, y, cv=10)
+print(accuracies)
+
+
+# ****** Build Analyzer - Example 1 ******  
+# Pulls all of trumps tweet text's into one giant string
+summaries = "".join(trump_df['text'])
+ngrams_summaries = vect.build_analyzer()(summaries)
+
+
+
+# ****** Write a function to pull out the top 5 words by TF-IDF score from a review ****** 
+ 
+def summarize():    
+    # choose a random review that is at least 300 characters
+    review_length = 0
+    while review_length < 300:
+        review_id = np.random.randint(0, len(yelp))
+        review_text = yelp.text[review_id]
+        review_length = len(review_text)
+    
+    # create a dictionary of words and their TF-IDF scores
+    word_scores = {}
+    for word in TextBlob(review_text).words:
+        word = word.lower()
+        if word in features:
+            word_scores[word] = dtm[review_id, features.index(word)]
+    
+    # print words with the top 5 TF-IDF scores
+    print('TOP SCORING WORDS:')
+    top_scores = sorted(word_scores.items(), key=lambda x: x[1], reverse=True)[:5]
+    for word, score in top_scores:
+        print(word)
+    
+    # print 5 random words
+    print('\n' + 'RANDOM WORDS:')
+    random_words = np.random.choice(list(word_scores.keys()), size=5, replace=False)
+    for word in random_words:
+        print(word)
+    
+    # print the review
+    print('\n' + review_text)
+
+
+
+
+# *********** SENTIMENT ANALYSIS *********** 
+
+# polarity ranges from -1 (most negative) to 1 (most positive)
+review.sentiment.polarity
+
+
+# **** Define a function that accepts text and returns the polarity
+def detect_sentiment(text):
+    return TextBlob(text).sentiment.polarity
+
+
+# create a new DataFrame column for sentiment (WARNING: SLOW!)
+yelp['sentiment'] = yelp['text'].apply(detect_sentiment)
+
+
+
+
+# **********  TEXTACY for Preprocessing text ********** 
+
+# Using the textacy package to do some more comprehensive preprocessing
+# http://textacy.readthedocs.io/en/latest/
+
+from textacy.preprocess import preprocess_text
+import numpy as np
+
+tweet_text = tweets['text'].values
+clean_text = [preprocess_text(x, fix_unicode=True, lowercase=True, transliterate=False,
+                              no_urls=True, no_emails=True, no_phone_numbers=True, no_currency_symbols=True,
+                              no_punct=True, no_accents=True)
+              for x in tweet_text]
+
+
+
+
+# ************  NLP - BUILD A MULTI-CLASS CLASSIFICATION MODEL **************
+
+y = multi['handle'].map(lambda x: 0 if x == 'wint' else 1 if x == 'Lazy dog' else 2).values
+
+tfv = TfidfVectorizer(ngram_range=(1,3), max_features=2500)
+X = tfv.fit_transform(clean_text)
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
+
+rf = RandomForestClassifier(n_estimators=250, verbose=1)
+knn = KNeighborsClassifier(n_neighbors=7)
+
+rf.fit(X_train, y_train)
+knn.fit(X_train, y_train)
+
+# Random forest and KNN scores:
+print('RF:', rf.score(X_test, y_test))
+print('KNN:', knn.score(X_test, y_test))
+
+# Baseline score:
+multi.handle.value_counts()/multi.shape[0]
+
+rf_yhat = knn.predict(X_test)
+
+print(classification_report(y_test, rf_yhat))
+print(confusion_matrix(y_test, rf_yhat))
+
+
+### 4. What is the most and least "distinctive" tweets for each user?
+
+To find this, identify the tweet that has the highest (correct) predicted probability of being that user's tweet for each user.
+
+rf.fit(X, y)
+pp = rf.predict_proba(X)
+
+
+
+
+# **************  Robust Regression *************** 
+
+# ******  Theil-Sen ******  
+import sklearn.linear_model
+ts = sklearn.linear_model.TheilSenRegressor()
+ts.fit(Xtrain, Ytrain)
+ts_predictions = ts.predict(Xtest)
+
+print("R^2 = ",sklearn.metrics.r2_score(Ytest, ts_predictions))
+print("Median absolute error = ",sklearn.metrics.median_absolute_error(Ytest, ts_predictions))
+print("Mean absolute error = ",sklearn.metrics.mean_absolute_error(Ytest, ts_predictions))
+
+# ******  RANSAC ******  
+import sklearn.linear_model
+ransac = sklearn.linear_model.RANSACRegressor()
+ransac.fit(Xtrain, Ytrain)
+ransac_predictions = ransac.predict(Xtest)
+
+# ******  Huber ******  
+import sklearn.linear_model
+ransac = sklearn.linear_model.RANSACRegressor()
+ransac.fit(Xtrain, Ytrain)
+ransac_predictions = ransac.predict(Xtest)
+
+
+
+
+# ********* Define a custom cost of errors ********* 
+
+def answer_cost(estimator, X, y):
+    predictions = list(estimator.predict(X))
+    y = list(y)
+    cost = 0.0
+    for i in range(len(y)):
+        if predictions[i] > y[i]:
+            cost += 0.05 * (predictions[i] - y[i])
+        elif predictions[i] < y[i]:
+            cost += 0.01 * (y[i] - predictions[i])
+        else:
+            cost += 0.0
+    return cost
+
+
+
+
+********* PICKLE *********
+
+# ******* pickle out ********
+file_Name = "testfile"
+# open the file for writing
+fileObject = open(file_Name,'wb')
+
+# this writes the object a to the
+# file named 'testfile'
+pickle.dump(PREDICTOR,fileObject)
+
+# here we close the fileObject
+fileObject.close()
+
+
+# ******* pickle in ********
+
+# we open the file for reading
+fileObject = open(file_Name,'r')
+
+# load the object from the file into var b
+PREDICTOR = pickle.load(fileObject)  

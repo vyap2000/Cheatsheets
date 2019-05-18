@@ -1,0 +1,61 @@
+pd.concat([df1,df2]) 			  # default is 0
+pd.concat([df1,df2],axis=0)       # Concat on column 
+pd.concat([df1,df2],axis=1)		  # Concat on row   axis = 1
+pd.concat([df1,df2],axis=1)['A']  # show column 'A' after concat
+
+df1.append(df2)                 # shortcut append function by column
+pd.concat([df1, df2.reset_index(drop=True)], axis=1)    # Reset df2 index and drop original index. False keeps the index
+
+SQL Joins
+
+Left 
+pd.merge(df_a, df_b, on='column1', how='left')
+
+Right 
+pd.merge(df_a, df_b, on='column1', how='right')
+
+Outer
+pd.merge(df_a, df_b, on='column1', how='outer')
+
+Inner
+pd.merge(df_a, df_b, on='column1', how='inner')
+
+Examples
+
+df_1 and df_2 = reference tables
+df_n = data table
+
+Syntax:
+pd.merge(table_left, 
+         table_right, 
+         left_on='left_key', 
+         right_on='right_key',
+         how='outer')
+
+Outer
+df_1 = pd.merge(df_a, df_b, on='subject_id', how='outer')
+df_2 = pd.merge(df_1, df_n, on='subject_id', how='outer')
+=> will includes all data from both reference tables with null/Nan
+
+# Edo's solution
+pd.merge(pd.concat([df_a, df_b]), 
+         df_n, 
+         on='subject_id', 
+         how='outer')
+=> Will includes all data but without null/Nan.
+
+Inner
+df_1 = pd.merge(df_a, df_b, on='subject_id', how='inner')
+df_2 = pd.merge(df_1, df_n, on='subject_id', how='inner')
+=> will includes all data from both reference tables with null/Nan
+
+# Edo's solution
+pd.merge(pd.concat([df_a, df_b]), 
+         df_n, 
+         on='subject_id', 
+         how='inner')
+
+=> Produce all resulted data with no null/Nan data as it is inner join
+
+
+

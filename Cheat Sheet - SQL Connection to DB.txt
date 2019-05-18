@@ -1,0 +1,212 @@
+﻿We can leverage SQL through pandas using the pandas.io.sql module:
+
+import pandas as pd
+from pandas.io import sql
+
+Sql.read_sql_table(table_name, con[, schema, ...])
+- Reads a SQL database table into a DataFrame.
+
+Sql.read_sql_query(sql, con[, index_col, ...])
+- Reads a SQL query into a DataFrame.
+
+Sql.read_sql(sql, con[, index_col, ...])¶
+- Reads a SQL query or database table into a DataFrame.
+- Adds a convenience wrapper around read_sql_table() and read_sql_query().
+- Delegates to a specific function, depending on the provided input.
+
+DataFrame.to_sql(name, con[, flavor, ...])
+- Writes records stored in a DataFrame to a SQL database.
+
+Example 1
+import sqlite3
+sqlite_db = './datasets/test_db.sqlite'
+conn = sqlite3.connect(sqlite_db) 
+c = conn.cursor()
+
+Example 2
+import pandas as pd
+from pandas.io import sql
+import sqlite3
+conn = sqlite3.connect('./datasets/sql/Cars.db.sqlite')
+c = conn.cursor()
+
+***********************************
+Read file and convert from tuple to list of lists 
+Example
+from numpy import genfromtxt
+
+## import into nparray of ints, then convert to list of lists
+data = (genfromtxt('datasets/housing-data.csv', dtype='i8', 
+                    delimiter=',', skip_header=1)).tolist()
+
+## append a None value to beginning of each sub-list
+for d in data:
+    d.insert(0, None)
+***********************************
+
+CREATE
+c.execute('CREATE TABLE houses (field1 INTEGER PRIMARY KEY, sqft INTEGER, bdrms INTEGER, age INTEGER, price INTEGER);')
+
+### Save (commit) the changes.
+conn.commit()
+
+READ
+Method 1:
+Reading data from DB
+df = pd.read_sql('SELECT * FROM houses_pandas LIMIT 10', con=conn)
+
+Method. 2.1:
+results = c.execute("SELECT * FROM houses WHERE bdrms = 4")
+results.fetchall()
+## Here, results is a cursor object — use `.fetchall()` to extract a list
+# Using double quote
+
+Method 2.2:
+results = c.execute('SELECT * FROM car_names where car_names."Model" = "Tesla" ')
+results.fetchall()
+# Using single quote with double quote for sql statement
+
+Method 3
+SQL="""
+    SELECT *
+    FROM car_names
+    WHERE car_names."Model" = "Tesla" 
+    """
+# using triple quote around sql
+
+
+DROP
+c.execute('DROP TABLE houses')
+conn.commit()
+
+INSERT
+Example 1:
+for d in data:
+    c.execute('INSERT INTO houses VALUES (?, ?, ?, ?, ?)', d)
+conn.commit()
+
+Example 2 for insert
+### Loop through data, running an INSERT on each record (i.e., sublist).
+for d in data:
+    c.execute('INSERT INTO houses VALUES (?, ?, ?, ?, ?)', d)
+conn.commit()
+
+---------------------------------------------------------
+Convert the loaded .csv to a SQL file
+# Converts a DataFrame into a SQL database.
+car_names.to_sql(name = 'car_names', 
+                 con = connection, 
+                 if_exists = 'replace', 
+                 index = False)
+				 
+WRITE TO DB
+E.g.1
+data.to_sql('houses_pandas',             # Name of the table.
+            con=conn,                    # The handle to the file that is set up.
+            if_exists='replace',         # Overwrite, append, or fail.
+            index=False)                 # Add index as column.
+
+E.g.2
+data.to_sql(name = 'car_data', 
+            con = connection, 
+            if_exists = 'replace', 
+            index = False)
+			
+E.g.3
+makers = pd.read_csv(car_makers_csv, encoding = 'utf-8')
+makers.to_sql(name = 'car_makers', 
+              con = connection, 
+              if_exists = 'replace', 
+              index = False)
+#replace existing table by dropping it first and create again
+
+*** Note: If you wanted a temporary SQL database, using the command below would allow you to access a database store in memory (RAM) as opposed to in storage.
+
+conn = sqlite3.connect(':memory:')
+
+---------------------------------------------------------
+
+Data is moved to the database through the to_sql command, similar to the to_csv command.
+
+to_sql takes the following arguments:
+
+name, the table name to create.
+con, a connection to a database.
+index, whether or not to input the index column.
+schema, if we want to write a custom schema for the new table.
+if_exists, what to do if the table already exists. We can overwrite it, add to it, or fail.
+---------------------------------------
+
+CUSTOMISED FUNCTION for querying a database using pandas and return a dataframe:
+
+def QueryDB (SQL,db=conn):
+    df=pd.read_sql(SQL,db)
+    return(df)
+
+
+**** Impt Note:
+
+Python's `None` value for primary key increment.
+
+There is a related cursor method, `.executemany()`, which takes an array of tuples and loops through them, substituting one tuple at a time.
+
+*** Impt Note: 
+use back slash to join long statement but with 4 space indents next line
+
+SQL='Select Make, MPG, Horsepower, Year \
+    from car_names CN,\
+    car_data CD \
+    ON CN.Id = CD.Id'
+
+
+LIKE CLAUSE 
+**** make sure use single quote after LIKE word ******
+SQL_STRING='''Select "City" as "City", 
+"CompanyName" as "Company Name"
+FROM Suppliers as S
+WHERE S."City" LIKE 'S%'
+ORDER BY S."City";
+'''
+
+HAVING Syntax¶
+
+SELECT column_name, aggregate_function(column_name)
+FROM table_name
+WHERE column_name operator value
+GROUP BY column_name
+HAVING aggregate_function(column_name) operator value;
+
+
+CASE Syntax
+SELECT 
+    CASE WHEN column_name operator value THEN 'string value1'
+        WHEN column_name operator value THEN 'string value2'
+        ELSE 'string value3' END AS 'alias'         
+FROM table_name
+
+Example 1:    
+# note the single quote after comparison condition
+SQL_STRING='''
+Select "City" as "City", 
+"CompanyName" as "Company Name",
+"Country",
+   CASE WHEN "Country" = 'USA' 
+   THEN 'domestic'
+   ELSE 'foreign' 
+   END As "D_F"
+FROM Suppliers 
+'''
+df1 = pd.read_sql(SQL_STRING, con=conn)
+
+
+DATE
+SELECT my_date,
+       EXTRACT('year'   FROM my_date) AS year,
+       EXTRACT('month'  FROM my_date) AS month,
+       EXTRACT('day'    FROM my_date) AS day,
+       EXTRACT('hour'   FROM my_date) AS hour,
+       EXTRACT('minute' FROM my_date) AS minute,
+       EXTRACT('second' FROM my_date) AS second,
+       EXTRACT('decade' FROM my_date) AS decade,
+       EXTRACT('dow'    FROM my_date) AS day_of_week
+  FROM table_name

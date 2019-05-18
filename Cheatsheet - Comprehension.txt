@@ -1,0 +1,72 @@
+1. Simple list comprehension
+   [age+1 for age in ages]
+
+2.  With Basic if-else
+["adult" if age>19 else "teen" for age in ages]
+
+3.  With Complex if-else
+["expert" if age>50 else "adult" if age>19 else "teen" for age in ages]
+["expert" if age>50 else ("adult" if age>19  else "teen") for age in ages]
+["expert" if age>50 else "adult" if age>19 else "teen" for age in ages]
+
+NOTE: if you have to use more than 2-3-4 if/else, probably you'd better use a for loop
+
+4a. Advanced list comprehension     
+  #you can use a tuple
+  [(n,age) for n,age in enumerate(ages)]
+
+4b. # you can use any object (i.e. a range())
+   [range(9) for age in ages]
+
+4c. # why not using another list? I have visibility on "i"!
+[i for i in range(len(ages))]
+
+5.  Filtering 
+    # if condition at the end.
+a.  [age for age in ages if age>=35]
+b.  [age for age in [x for x in ages if x>=35]]
+
+
+6.  Dictionary Comprehension
+
+a.  {age:age**2 for age in ages}
+    
+    {k:[ord(c) for c in k] for k in keys}
+
+Use list comprehensions to create a dictionary called sales_data, where the keys of dictionary are column names, 
+and the values of dictionary are lists of the data points of the column corresponding to that column name.
+    
+    sales_data = {column_name:[d[index] for d in data] for index, column_name in enumerate(header)}
+    
+# put the data into a dictionary with keys identified by column names:
+d = {key_name:[row[index] for row in data] for index, key_name in enumerate(names)}
+print(d.keys())
+dict_keys(['CRIM', 'ZN', 'INDUS', 'CHAS', 'NOX', 'RM', 'AGE', 'DIS', 'RAD', 'TAX', 'PTRATIO', 'B', 'LSTAT', 'MEDV'])
+d['NOX'][:10]
+[0.538, 0.469, 0.469, 0.458, 0.458, 0.458, 0.524, 0.524, 0.524, 0.524]
+
+    Other e.g. {name:[float(x) for x in col] for name, col in data.items()}	
+
+b.  # using tuples
+    dict([(age,age**2) for age in ages])
+
+c.  # using zip
+    dict(zip(list1,list2)) 
+
+Nested Loops & Other Examples:
+
+[[x**2, np.sqrt(x)] for x in [y for y in n if y >= 0]]
+
+[round((x*i)/y,1) for i, (x, y) in enumerate(zip(list_one, list_two))]
+
+[s for syls in [[c+v for v in vowels] for c in [x for x in alphabet if x not in vowels]] for s in syls]
+
+Dict comprehension and Pandas
+column_names = ['height','weight','is_male']
+values = [[62, 54, 60, 50], [180, 120, 200, 100], [True, False, True, False]]
+records = pd.DataFrame({col:vals for col, vals in zip(column_names, values)})
+
+
+
+# get the UNIQUE words:
+W_unique = list(np.unique(W))

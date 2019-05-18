@@ -1,0 +1,307 @@
+﻿from datetime import datetime
+from datetime import timedelta
+
+lesson_date = datetime(2012, 12, 21, 12, 21, 12, 844089)
+
+# Current time 
+datetime.now()
+
+
+# ******** timedelta Function ********
+http://pandas.pydata.org/pandas-docs/stable/reference/arrays.html#datetime-data 
+
+# One year, three days, two seconds ahead.
+
+lesson_date + timedelta(days=368, seconds=2)
+
+# Adding negative days — so cool!
+lesson_date + timedelta(days=-3))
+
+offset = timedelta(days=1, seconds=20)
+print("Future: ", now + offset)
+print("Past: ", now - offset)
+
+# the time delta has attributes that allow us to extract values from it.
+print('offset days', offset.days)
+print('offset seconds', offset.seconds
+
+
+# ******* ******* ******* ******* PANDA ******* ******* ******* 
+
+ufo['Time'] = pd.to_datetime(ufo.Time)
+ufo['Time'] = pd.to_datetime(ufo.Time, format='%Y%m%d', errors='coerce')
+
+
+# ***************** .dt attribute  ******************  
+ufo['Time'].dt.dayofyear.head()
+ufo['Time'].dt.weekday_name.head()
+
+
+# *********  Time Stamps  *********  
+http://pandas.pydata.org/pandas-docs/stable/reference/arrays.html#datetime-data
+
+# The main difference between a DateTime object and a Timestamp is...
+# that Timestamps can be used as comparisions.
+
+# Time Stamp
+ts = pd.to_datetime('1/1/1999')
+
+# Use that Time Stamp for a comparison.
+ufo.loc[ufo['Time'] >= ts].head()
+
+# We can even get the first and last dates from a timeseries
+ufo['Time'].max() - ufo['Time'].min()
+
+
+# ****************  Set up date column as DataFrame INDEX *******************  
+
+df_vow.set_index('Date', inplace=True)
+df_vow.index = pd.to_datetime(df_vow.index)
+
+df_vow['Year'] = df_vow.index.year
+df_vow['Month'] = df_vow.index.month
+df_vow['Day'] = df_vow.index.day
+
+
+# ****************  DATE RANGE FUNCTION *******************  
+pd.date_range('3/1/2016', '6/1/2016')
+
+# Specify a start point and how many periods should come after.
+pd.date_range(start='3/1/2016', periods=20)
+
+# Frequency specifies the length of the periods
+# — the default, "D," being daily. We understand that BM is bimonthly.
+pd.date_range('1/1/2016', '12/1/2016', freq='BM')
+
+# Normalize creates normal daily times and will set the default time for each day as midnight.
+pd.date_range('3/7/2012 12:56:31', periods=6, normalize=True
+
+
+
+*********  PERIOD FUNCTION *********
+http://pandas.pydata.org/pandas-docs/stable/reference/arrays.html#datetime-data
+
+a Period object, which can be used to represent a time interval. The Period object consists of a start time and an end time and can be created by providing a start time and a given frequency.
+
+# Our start period was March 2016 and our period frequency is months.
+march_2016 = pd.Period('2016-03', freq='M')
+
+print(march_2016.start_time)
+print(march_2016.end_time)
+
+
+
+
+******* Other Attributes and functions ********
+
+Interval.closed 
+arrays.DatetimeArray()
+DatetimeTZDtype()
+
+
+Resample
+This is a convenience method for frequency conversion and the resampling of time series. Object must have a datetime-like index (DatetimeIndex, PeriodIndex, or TimedeltaIndex) or pass datetime-like values to the on or level keyword.
+
+
+.rolling
+http://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.rolling.html?highlight=rolling#pandas.DataFrame.rolling
+
+
+
+#  Write a function to print the day of the week for a datetime object
+def day_of_week(date):
+#     days_of_week = {0: 'monday', 
+#                     1: 'tuesday', 
+#                     2: 'wednesday', 
+#                     3: 'thursday', 
+#                     4: 'friday', 
+#                     5: 'saturday', 
+#                     6: 'sunday'}
+    days_of_week = dict(zip(range(7), ['monday','tuesday','wednesday','thursday','friday','saturday','sunday']))
+    return days_of_week[date.weekday()]
+day_of_week(lesson_date)
+
+#  Gregorian ordinal representation  ("Days" Number)
+Use `.toordinal()` to get the ordinal representation.
+
+
+
+
+# ********* Autocorrelation ********* 
+
+autocorr_quarter_lag1 = data['unemployment_rate'].resample('Q').mean().autocorr(lag=1)
+autocorr_year_lag1 = data['unemployment_rate'].resample('A').mean().autocorr(lag=1)
+
+print(autocorr_quarter_lag1)
+print(autocorr_year_lag1)
+
+
+### Autocorrelation Using Statsmodels
+
+from statsmodels.tsa.stattools import acf
+from statsmodels.graphics.tsaplots import plot_acf
+
+fig, ax = plt.subplots(figsize=(12,5))
+plot_acf(data['unemployment_rate'], lags=30, ax=ax)
+plt.show()
+
+
+#### Partial Autocorrelation and the Partial Autocorrelation Function (PACF)
+
+from statsmodels.tsa.stattools import pacf
+from statsmodels.graphics.tsaplots import plot_pacf
+
+fig, ax = plt.subplots(figsize=(12,5))
+plot_pacf(data['unemployment_rate'], lags=30, ax=ax)
+plt.show()
+
+
+##  Checking Seasonal trend
+from statsmodels.tsa.seasonal import seasonal_decompose
+result = seasonal_decompose(signal)
+result.plot();
+
+
+from statsmodels.tsa.seasonal import seasonal_decompose
+tsindex = data.index.to_timestamp()
+data_ts = data.copy()
+data_ts.index = tsindex
+result = seasonal_decompose(data_ts.unemployment_rate)
+result.plot();
+
+
+Difference using .diff()
+data['unemp_diff'] = data['unemployment_rate'].diff()
+data['unemp_diff'] = data['unemp_diff'].dropna()
+
+
+
+# ******** AR Model ***********
+from statsmodels.tsa.arima_model import ARMA
+ar1 = ARMA(data['unemp_diff'].dropna(), (1, 0)).fit
+ar1.summary()
+predictions = ar1.predict()
+full_pred = data['unemployment_rate'].values[0]+np.cumsum(ar1.fittedvalues)
+
+
+
+
+# ****** LSTM with RNN (Keras) *******
+
+from keras.models import Sequential
+from keras.layers import Dense
+from keras.layers import LSTM
+from sklearn.preprocessing import MinMaxScaler
+
+# Define urate differenced variable:
+urate = data[['udiff']]
+
+mms = MinMaxScaler(feature_range=(-1, 1))
+urate = mms.fit_transform(urate)
+
+# reshape input to be [samples, time steps, features] --> 3D Matrix
+trainX = np.reshape(trainX, (trainX.shape[0], 1, trainX.shape[1]))
+testX = np.reshape(testX, (testX.shape[0], 1, testX.shape[1]))
+
+
+# Eg.1 - Using Adam optimizer with 20 passes
+model = Sequential()
+model.add(LSTM(4, input_shape=(None, lag)))
+model.add(Dense(1))
+
+model.compile(loss='mean_squared_error', optimizer='adam')
+model.fit(trainX, trainY, epochs=20, batch_size=1, verbose=1)
+
+trainPredict = model.predict(trainX)
+testPredict = model.predict(testX)
+
+# shift train predictions for plotting
+trainPredictPlot = np.empty_like(urate)
+trainPredictPlot[:, :] = np.nan
+trainPredictPlot[lag:len(trainPredict)+lag, :] = trainPredict
+ 
+# shift test predictions for plotting
+testPredictPlot = np.empty_like(urate)
+testPredictPlot[:, :] = np.nan
+testPredictPlot[-len(testPredict):, :] = testPredict
+ 
+# plot baseline and predictions
+plt.figure(figsize=(14,7))
+plt.plot(urate)
+plt.plot(trainPredictPlot)
+plt.plot(testPredictPlot)
+plt.show()
+
+
+# Eg.2 - Using rmsprop optimizer with 50 passes
+model = Sequential()
+model.add(LSTM(4, input_shape=(None, lag)))
+model.add(Dense(1))
+model.compile(loss='mean_squared_error', optimizer='rmsprop')
+model.fit(trainX, trainY, epochs=50, batch_size=1, verbose=1)
+trainPredict = model.predict(trainX)
+testPredict = model.predict(testX)
+
+# shift train predictions for plotting
+trainPredictPlot = np.empty_like(urate)
+trainPredictPlot[:, :] = np.nan
+trainPredictPlot[lag:len(trainPredict)+lag, :] = trainPredict
+ 
+# shift test predictions for plotting
+testPredictPlot = np.empty_like(urate)
+testPredictPlot[:, :] = np.nan
+testPredictPlot[-len(testPredict):, :] = testPredict
+ 
+# plot baseline and predictions
+plt.figure(figsize=(14,7))
+plt.plot(urate)
+plt.plot(trainPredictPlot)
+plt.plot(testPredictPlot)
+plt.show()\
+
+
+
+# ****** "Stateful" LSTM models ********
+lag = 1
+trainX, trainY = create_data(train, lag)
+testX, testY = create_data(test, lag)
+
+# reshape input to be [samples, time steps, features]
+trainX = np.reshape(trainX, (trainX.shape[0], trainX.shape[1], 1))
+testX = np.reshape(testX, (testX.shape[0], testX.shape[1], 1))
+
+# create and fit the LSTM network
+batch_size = 1
+model = Sequential()
+# You will now give it a "batch_input_shape" and specify the batch size
+model.add(LSTM(4, batch_input_shape=(batch_size, lag, 1), stateful=True))
+model.add(Dense(1))
+model.compile(loss='mean_squared_error', optimizer='adam')
+
+for i in range(80):
+    model.fit(trainX, trainY, epochs=1, batch_size=batch_size, verbose=1, shuffle=False)
+    model.reset_states()
+
+# generate predictions for training
+# You need to reset the states manually for prediction with a stateful LSTM!!
+trainPredict = model.predict(trainX, batch_size=batch_size)
+model.reset_states()
+testPredict = model.predict(testX, batch_size=batch_size)
+model.reset_states()
+
+# shift train predictions for plotting
+trainPredictPlot = np.empty_like(urate)
+trainPredictPlot[:, :] = np.nan
+trainPredictPlot[lag:len(trainPredict)+lag, :] = trainPredict
+ 
+# shift test predictions for plotting
+testPredictPlot = np.empty_like(urate)
+testPredictPlot[:, :] = np.nan
+testPredictPlot[-len(testPredict):, :] = testPredict
+ 
+# plot baseline and predictions
+plt.figure(figsize=(14,7))
+plt.plot(urate)
+plt.plot(trainPredictPlot)
+plt.plot(testPredictPlot)
+plt.show()

@@ -1,0 +1,254 @@
+﻿import csv
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+%matplotlib inline
+%config InlineBackend.figure_format = 'retina'
+plt.style.use('fivethirtyeight')
+
+
+df.plot(x='col1',y='col2')			   # display line plot
+df.plot(figsize=(5,5))                 # figure size
+df.plot(c='r')						   # colour
+df.plot(style=['r-','y-','b+','g--'])  # set style
+df.plot(title='Col1 and Col2')		   # title
+plt.legend(loc=3)					   # move the legend
+plt.show							   # chart snapshot with current data -> better to assign to a variable.
+
+plt.xlabel('this is the x axis')
+plt.ylabel('this is the y axis')
+plt.yticks(np.arange(-3,3,0.5), 
+           ['ciao {}'.format(i) for i in np.arange(-3,3,0.5)])
+
+Syntax:
+df.plot()
+df.plot('col1)
+
+******
+df.plot('col1)   is NOT EQUAL to    df['col1'].plot()
+******
+
+df['col1'].plot()					   # For Series - single column
+df[['col1','col2','col3']].plot()	   # For DataFrame - multiple columns
+
+
+LINE PLOT
+df['column3'].plot()
+
+
+BAR PLOT - Vertical is default
+df['column3'].plot(kind='bar')
+
+
+BAR PLOT - Horizontal  
+df['column3'].plot(kind='barh')
+
+
+STACKED BAR
+df[['col1','col2']].plot(kind='bar', stacked=True)
+
+
+HISTOGRAM
+df['column3'].hist()					# display histogram  
+plt.hist(mydataframe)
+plt.hist(mydataframe, bins=100)      # with bins
+sat.hist('Math',bins=50,figsize=(13,5),color='b')
+
+Syntax with functions
+
+df['col1'].value_counts().plot(kind='bar')
+
+df[['col1','col2']].sort_index(ascending=False)\
+                   .plot(kind='barh', stacked=True)	
+
+				   
+BOXPLOT
+sat.boxplot(column=['Math','Verbal'])				   
+df.plot(kind='box')
+
+				
+SCATTER PLOT
+df.plot(kind='scatter', x='col1',y='col2')		
+
+
+***********
+Example of using a "list comprehension" to change the size of the scatter plot dots based on variable 'DIS'
+***********
+
+housing.plot(x='ZN', y='INDUS', kind='scatter', 
+           color='dodgerblue', figsize=(15,7), s=[x**2 for x in housing['DIS']])
+
+
+SEABORN
+Example:
+   f, ax = plt.subplots(1,1,figsize=(13,10))
+   sns.barplot(x='YEAR_WEEK_NUM',y='ADJ_WKEND_EARNINGS',data=topweek)
+
+
+SEABORN Heatmap
+sns.heatmap(mydataframe)
+
+
+SEABORN Pairplot
+sns.pairplot(mydataframe.sample(1000))
+sns.pairplot(sat)
+
+
+SEABORN Distplot
+f, ax = plt.subplots(1,1,figsize=(14,5))
+sns.distplot(sat['Verbal'], bins=100, color='b', kde=False)
+
+
+MULTIPLE CHARTS
+fig, axes = plt.subplots(2,3, figsize=(16,8))
+
+Examples:
+fig, axes = plt.subplots(2,3, figsize=(16,8))
+df.plot(ax=axes[0][0])
+df['col1'].plot(ax=axes[0][1])
+df['col2'].plot(ax=axes[1][1])
+
+
+Customization Example: 
+******************************************************************
+fig, axes = plt.subplots(2,2, figsize=(16,8))
+
+# We can change the ticks' size
+df['col2'].plot(figsize=(16,4), color='purple', fontsize=21, ax=axes[0][0])
+
+# We can also change which ticks are visible
+# list comprehension to get only the even ticks
+ticks_to_show = [idx for idx, _ in enumerate(df['col2'].index) if idx % 2 == 0]
+df['col2'].plot(figsize=(16,4), color='purple', xticks=ticks_to_show, fontsize=16, ax=axes[0][1])
+
+# We can change the label rotation
+df.plot(figsize=(15,7), title='Big Rotated Labels - Tiny Title',\
+        fontsize=20, rot=-50, ax=axes[1][0])\
+
+# We have to use .set_title() to fix title size
+df.plot(figsize=(16,8), fontsize=20, rot=-50, ax=axes[1][1])\
+       .set_title('Better-Sized Title', fontsize=21, y=1.01)	   
+******************************************************************	   
+	   
+
+STANDARDIZING VARIABLES	   
+We rescale the variables using a procedure called "standardization," which forces the distribution of each variable to have a mean of 0 and a standard deviation of 1.
+
+Formulae is:
+standardized_variable = (variable - mean_of_variable) / std_dev_of_variable
+
+Eg1:
+boston_stand = (boston - boston.mean()) / boston.std()
+
+
+COVARIANC formulae:
+covariance(X,Y)=∑i=1N(X−X¯)(Y−Y¯)N
+E.g.
+pct_under = boston.pct_underclass.values
+med_val = boston.home_median_value.values
+
+under_val_cov = np.sum((pct_under - np.mean(pct_under))*(med_val - np.mean(med_val)))/len(pct_under)
+print(under_val_cov)
+print(np.cov(pct_under, med_val, bias=True))
+
+
+PEARSON CORRELATION formulae:
+pearson correlationr=cor(X,Y)=cov(X,Y)std(X)std(Y)
+
+
+Correlation Matrix in dataframe
+boston.corr()
+plt.figure(figsize=(20,20))
+sns.heatmap(boston.corr(), annot=True)
+plt.matshow(dataframe.corr())
+
+
+
+SEABORN HEATMAP of CORRELATION (MASKED UPPER TRIANGLE)
+# Set the default matplotlib figure size:
+fig, ax = plt.subplots(figsize=(9,7))
+
+# Generate a mask for the upper triangle (taken from seaborn example gallery)
+mask = np.zeros_like(mean_corr, dtype=np.bool)
+mask[np.triu_indices_from(mask)] = True
+
+# Plot the heatmap with seaborn.
+# Assign the matplotlib axis the function returns. This will let us resize the labels.
+ax = sns.heatmap(mean_corr, mask=mask, ax=ax)
+
+
+*** Syntax to generate "sorted" Heatmap:
+
+
+sns.heatmap(food.corr()[['price']].sort_values(by='price', ascending=False), annot=True)
+
+
+
+*******
+df['CHAS'].plot(kind='hist') is EQUAL to 	housing['CHAS'].hist()			   
+*******		different library methods			
+	  
+	  
+BIN, AX for the first chart plt.hist...()
+Second chart plt.hist will use AX=AX and bins = bins of the first charts
+This will overlaps both histogram
+
+return value is always a tuple of AX axis and BIN
+
+
+PERCENTILE OF SCORE 
+stats.percentileofscore(sat['Rate'], value)
+
+
+
+CORRELATION HEAT MAP
+def correlation_heat_map(df):
+    corrs = df.corr()
+
+    # Set the default matplotlib figure size:
+    fig, ax = plt.subplots(figsize=(11,7))
+
+    # Generate a mask for the upper triangle (taken from seaborn example gallery)
+    mask = np.zeros_like(corrs, dtype=np.bool)
+    mask[np.triu_indices_from(mask)] = True
+
+    # Plot the heatmap with seaborn.
+    # Assign the matplotlib axis the function returns. This will let us resize the labels.
+    ax = sns.heatmap(corrs, mask=mask, annot=True)
+
+    # Resize the labels.
+    ax.set_xticklabels(ax.xaxis.get_ticklabels(), fontsize=14, rotation=30)
+    ax.set_yticklabels(ax.yaxis.get_ticklabels(), fontsize=14, rotation=0)
+
+    # If you put plt.show() at the bottom, it prevents those useless printouts from matplotlib.
+    plt.show()
+
+df_with_target = df.copy()
+df_with_target['MEDV'] = y
+correlation_heat_map(df_with_target)
+
+
+SKEWNESS
+When a distribution is negatively skewed, the mean is less than the median, which is less than the mode.
+
+Negative skew: mean < median < mode
+
+When a distribution is positively skewed, the mean is greater than the median, which is greater than the mode.
+
+Positive skew: mode < median < mean
+
+A positive-skewed distribution is one whose right tail is longer or fatter than its left.
+
+Conversely, a negative-skewed distribution is one whose left tail is longer or fatter than its right.
+
+Symmetric distributions have no skewness!
+
+
+
+LOG TRANSFORMATION
+df["abv"].apply(np.log).hist()
+df["ibu"].apply(np.log).hist()
+plt.show()
+
+lambda x: np.log(x)

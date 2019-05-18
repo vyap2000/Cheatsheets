@@ -1,0 +1,119 @@
+﻿from datetime import datetime
+from datetime import timedelta
+
+lesson_date = datetime(2012, 12, 21, 12, 21, 12, 844089)
+
+# Current time 
+datetime.now()
+
+# ******** timedelta Function ********
+http://pandas.pydata.org/pandas-docs/stable/reference/arrays.html#datetime-data 
+
+# One year, three days, two seconds ahead.
+
+lesson_date + timedelta(days=368, seconds=2)
+
+# Adding negative days — so cool!
+lesson_date + timedelta(days=-3))
+
+offset = timedelta(days=1, seconds=20)
+print("Future: ", now + offset)
+print("Past: ", now - offset)
+
+# the time delta has attributes that allow us to extract values from it.
+print('offset days', offset.days)
+print('offset seconds', offset.seconds
+
+
+# ******* ******* ******* ******* PANDA ******* ******* ******* 
+
+ufo['Time'] = pd.to_datetime(ufo.Time)
+ufo['Time'] = pd.to_datetime(ufo.Time, format='%Y%m%d', errors='coerce')
+
+
+# ***************** .dt attribute  ******************  
+ufo['Time'].dt.dayofyear.head()
+ufo['Time'].dt.weekday_name.head()
+
+
+# *********  Time Stamps  *********  
+http://pandas.pydata.org/pandas-docs/stable/reference/arrays.html#datetime-data
+
+# The main difference between a DateTime object and a Timestamp is...
+# that Timestamps can be used as comparisions.
+
+# Time Stamp
+ts = pd.to_datetime('1/1/1999')
+
+# Use that Time Stamp for a comparison.
+ufo.loc[ufo['Time'] >= ts].head()
+
+# We can even get the first and last dates from a timeseries
+ufo['Time'].max() - ufo['Time'].min()
+
+
+# ****************  Set a DataFrame INDEX with time series *******************  
+df_vow.set_index('Date', inplace=True)
+df_vow.index = pd.to_datetime(df_vow.index)
+
+df_vow['Year'] = df_vow.index.year
+df_vow['Month'] = df_vow.index.month
+df_vow['Day'] = df_vow.index.day
+
+
+# ****************  DATE RANGE FUNCTION *******************  
+pd.date_range('3/1/2016', '6/1/2016')
+
+# Specify a start point and how many periods should come after.
+pd.date_range(start='3/1/2016', periods=20)
+
+# Frequency specifies the length of the periods
+# — the default, "D," being daily. We understand that BM is bimonthly.
+pd.date_range('1/1/2016', '12/1/2016', freq='BM')
+
+# Normalize creates normal daily times and will set the default time for each day as midnight.
+pd.date_range('3/7/2012 12:56:31', periods=6, normalize=True
+
+
+
+*********  PERIOD FUNCTION *********
+http://pandas.pydata.org/pandas-docs/stable/reference/arrays.html#datetime-data
+
+a Period object, which can be used to represent a time interval. The Period object consists of a start time and an end time and can be created by providing a start time and a given frequency.
+
+# Our start period was March 2016 and our period frequency is months.
+march_2016 = pd.Period('2016-03', freq='M')
+
+print(march_2016.start_time)
+print(march_2016.end_time)
+
+
+
+
+******* Other Attributes and functions ********
+Interval.closed 
+arrays.DatetimeArray()
+DatetimeTZDtype()
+
+
+
+#  Write a function to print the day of the week for a datetime object
+def day_of_week(date):
+#     days_of_week = {0: 'monday', 
+#                     1: 'tuesday', 
+#                     2: 'wednesday', 
+#                     3: 'thursday', 
+#                     4: 'friday', 
+#                     5: 'saturday', 
+#                     6: 'sunday'}
+    days_of_week = dict(zip(range(7), ['monday','tuesday','wednesday','thursday','friday','saturday','sunday']))
+    return days_of_week[date.weekday()]
+day_of_week(lesson_date)
+
+
+#  Gregorian ordinal representation  ("Days" Number)
+Use `.toordinal()` to get the ordinal representation.
+
+
+
+
